@@ -6,7 +6,7 @@
 //  Copyright © 2016 Katherine Ebel. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 enum SWAPI: Endpoint {
   case characters
@@ -32,7 +32,9 @@ enum SWAPI: Endpoint {
 }
 
 final class SWAPIClient: APIClient {
+  static let sharedClient = SWAPIClient()
   let configuration: URLSessionConfiguration
+  var collectionTitle: String = ""
   lazy var session: URLSession = {
     return URLSession(configuration: self.configuration)
   }()
@@ -45,8 +47,8 @@ final class SWAPIClient: APIClient {
     self.init(configuration: .default)
   }
   
-  func fetchPeople(completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
-    fetch(endpoint: SWAPI.characters, parse: { (json) -> [StarWarsEntity]? in
+  func fetchCollection(for endpoint: Endpoint, completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
+    fetch(endpoint: endpoint, parse: { (json) -> [StarWarsEntity]? in
       guard let results = json["results"] as? [[String : Any]] else {
         return nil
       }

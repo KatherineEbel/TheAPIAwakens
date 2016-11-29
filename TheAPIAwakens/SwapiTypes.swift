@@ -16,6 +16,10 @@ protocol Manned: JSONDecodable {
   init?(JSON: JSON)
 }
 
+protocol StarWarsType {
+  var name: String { get }
+}
+
 enum StarWarsEntity: JSONDecodable {
   case person(Person)
   case vehicle(Vehicle)
@@ -29,7 +33,7 @@ enum StarWarsEntity: JSONDecodable {
     }
   }
   
-  struct Person: JSONDecodable {
+  struct Person: JSONDecodable, StarWarsType {
     let name: String
     let born: String
     var home: String
@@ -38,7 +42,7 @@ enum StarWarsEntity: JSONDecodable {
     let hair: String
     let vehicles: [String]?
   }
-  struct Vehicle: Manned {
+  struct Vehicle: Manned, StarWarsType {
     let name: String
     let make: String
     let cost: String
@@ -48,7 +52,7 @@ enum StarWarsEntity: JSONDecodable {
     
     
   }
-  struct Starship: Manned {
+  struct Starship: Manned, StarWarsType {
     let name: String
     let make: String
     let cost: String
