@@ -34,7 +34,7 @@ enum SWAPI: Endpoint {
 final class SWAPIClient: APIClient {
   static let sharedClient = SWAPIClient()
   let configuration: URLSessionConfiguration
-  var collectionTitle: String = ""
+  let dispatchGroup = DispatchGroup()
   lazy var session: URLSession = {
     return URLSession(configuration: self.configuration)
   }()
@@ -56,21 +56,20 @@ final class SWAPIClient: APIClient {
     }, completion: completion)
   }
   
-  func getPlanetNames(for characters: [StarWarsEntity.Person], completion: @escaping (APIResult<[StarWarsEntity.Person]>) -> Void) {
-    var updatedCharacters: [StarWarsEntity.Person] = []
+  func getPlanetNames(for characters: [StarWarsEntity.Person], completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
+    var updatedCharacters: [StarWarsEntity] = []
     let planets = characters.map { $0.home }
-    let dispatchGroup = DispatchGroup()
     for (index, planet) in planets.enumerated() {
       let request = SWAPI.planets(planet).request
       dispatchGroup.enter()
-      fetch(request, parse: { (json) -> StarWarsEntity.Person? in
+      fetch(request, parse: { (json) -> StarWarsEntity? in
           guard let name = json["name"] as? String else {
             return nil
           }
           var character = characters[index]
           character.home = name
-          dispatchGroup.leave()
-          return character
+          self.dispatchGroup.leave()
+          return StarWarsEntity.person(character)
       }, completion: { result in
         switch result {
           case .success(let character): updatedCharacters.append(character)
@@ -81,5 +80,23 @@ final class SWAPIClient: APIClient {
     dispatchGroup.notify(queue: .main) {
       completion(APIResult.success(updatedCharacters))
     }
+  }
+  
+  // takes any number of starwars entities and returns the name of the smallest and largest in the group
+  func smallestAndLargest(from collection: [StarWarsEntity]) -> (smallest: String, largest: String)? {
+    let sorted = collection.sorted(by: { firstEntity, secondEntity in
+      let first = firstEntity.entity
+      let second = secondEntity.entity
+      if let first = first as? StarWarsEntity.Person, let second  = second as? StarWarsEntity.Person {
+        return Double(first.height)! < Double(second.height)!
+      } else if let first = first as? Manned, let second = second as? Manned {
+        return Double(first.length)! < Double(second.length)!
+      } else {
+        return false
+      }
+    })
+    let smallest = sorted.first?.entity as! StarWarsType
+    let largest = sorted.last?.entity as! StarWarsType
+    return (smallest: smallest.name, largest: largest.name)
   }
 }

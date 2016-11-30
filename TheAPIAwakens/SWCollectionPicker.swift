@@ -8,17 +8,9 @@
 
 import UIKit
 
-class SWCollectionPicker: UIPickerView {
+@IBDesignable class SWCollectionPicker: UIPickerView {
   override func awakeFromNib() {
     self.backgroundColor = UIColor(red: 27/255.0, green: 32/255.0, blue: 36/255.0, alpha: 1.0)
+    self.selectRow(0, inComponent: 0, animated: true)
   }
-
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
-    }
-    */
-
 }

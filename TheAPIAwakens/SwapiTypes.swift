@@ -25,11 +25,44 @@ enum StarWarsEntity: JSONDecodable {
   case vehicle(Vehicle)
   case starship(Starship)
   
+  enum PropertyNames: String {
+    case Born
+    case Home
+    case Height
+    case Eyes
+    case Hair
+    case Make
+    case Cost
+    case Length
+    case Kind = "Type" // need to use different value since Type clashes with other properties
+    case Crew
+  }
+  
   var entity: Any {
     switch self {
       case .person(let person): return person
       case .vehicle(let vehicle): return vehicle
       case .starship(let starship): return starship
+    }
+  }
+  
+  var propertyNames: [PropertyNames] {
+    switch self {
+      case .person(_):
+        return [.Born, .Home, .Height, .Eyes, .Hair]
+      case .vehicle, .starship:
+        return [.Make, .Cost, .Length, .Kind, .Crew]
+    }
+  }
+  
+  var propertyValues: [String] {
+    switch self {
+    case .person(let person):
+      return [person.born, person.home, person.height, person.eyes, person.hair]
+    case .vehicle(let vehicle):
+      return [vehicle.make, vehicle.cost, vehicle.length, vehicle.type, vehicle.crew]
+    case .starship(let starShip):
+      return [starShip.make, starShip.cost, starShip.length, starShip.type, starShip.crew]
     }
   }
   
@@ -129,7 +162,8 @@ extension StarWarsEntity.Starship {
       self.cost = cost
       self.crew = crew
       self.type = type
+    } else {
+      return nil
     }
-    return nil
   }
 }

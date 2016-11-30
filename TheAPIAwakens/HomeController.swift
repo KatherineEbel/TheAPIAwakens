@@ -10,7 +10,7 @@ import UIKit
 
 class HomeController: UIViewController {
   
-  var starwarsCollection = [Any]()
+  var starwarsCollection = [StarWarsEntity]()
   var swapiClient = SWAPIClient.sharedClient
 
   override func viewDidLoad() {
@@ -32,7 +32,6 @@ class HomeController: UIViewController {
                 case .success(let characters):
                   self.starwarsCollection = characters
                   self.performSegue(withIdentifier: "viewCollection", sender: self)
-                  print(characters)
                 case .failure(let error): print(error.localizedDescription)
               }
             }
@@ -47,7 +46,6 @@ class HomeController: UIViewController {
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
-          print(collection)
           self.performSegue(withIdentifier: "viewCollection", sender: self)
         case .failure(let error): print(error.localizedDescription)
       }
@@ -59,7 +57,6 @@ class HomeController: UIViewController {
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
-          print(collection)
           self.performSegue(withIdentifier: "viewCollection", sender: self)
         case .failure(let error): print(error.localizedDescription)
       }

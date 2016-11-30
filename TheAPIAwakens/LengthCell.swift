@@ -9,16 +9,39 @@
 import UIKit
 
 class LengthCell: UITableViewCell {
-
+  
+  @IBOutlet weak var attributeNameLabel: UILabel!
+  @IBOutlet weak var attributeValueLabel: UILabel!
+  @IBOutlet weak var unitsLabel: UILabel!
+  @IBOutlet weak var englishConversionButton: UIButton!
+  @IBOutlet weak var metricConversionButton: UIButton!
+  
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
+  func resetConversionButtons() {
+    metricConversionButton.isUserInteractionEnabled = true
+    metricConversionButton.tintColor = UIColor.darkGray
+    englishConversionButton.isUserInteractionEnabled = false
+    englishConversionButton.tintColor = UIColor.white
+  }
+  
+  @IBAction func toEnglishMeasurement() {
+    attributeValueLabel.text? = (attributeValueLabel.text?.toFeetFromMeters())!
+    unitsLabel.text = "ft"
+    resetConversionButtons()
+  }
+  
+  @IBAction func toMetricMeasurement() {
+    attributeValueLabel.text = (attributeValueLabel.text?.fromFeetToMeters())!
+    unitsLabel.text = "m"
+    metricConversionButton.isUserInteractionEnabled = false
+    metricConversionButton.tintColor = UIColor.white
+    englishConversionButton.isUserInteractionEnabled = true
+    englishConversionButton.tintColor = UIColor.darkGray
+  }
+  
+  
 
 }

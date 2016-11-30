@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		446C727C1DEE3F1F00ED55CE /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446C727B1DEE3F1F00ED55CE /* StringExtension.swift */; };
 		44AD7C831DECEE03001F5DC2 /* CostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AD7C821DECEE03001F5DC2 /* CostCell.swift */; };
 		44B6B47D1DECEFDD00477D5B /* LengthCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B47C1DECEFDD00477D5B /* LengthCell.swift */; };
 		44B6B47F1DECF2AC00477D5B /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B47E1DECF2AC00477D5B /* ListController.swift */; };
 		44B6B4831DEDC2E700477D5B /* SWCollectionPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B4821DEDC2E700477D5B /* SWCollectionPicker.swift */; };
+		44B6B4851DEDDBF100477D5B /* DefaultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B4841DEDDBF100477D5B /* DefaultCell.swift */; };
 		44EEB9EB1DE3611B00F40DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EEB9EA1DE3611B00F40DD6 /* AppDelegate.swift */; };
 		44EEB9ED1DE3611B00F40DD6 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EEB9EC1DE3611B00F40DD6 /* HomeController.swift */; };
 		44EEB9F01DE3611B00F40DD6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44EEB9EE1DE3611B00F40DD6 /* Main.storyboard */; };
@@ -22,10 +24,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		446C727B1DEE3F1F00ED55CE /* StringExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		44AD7C821DECEE03001F5DC2 /* CostCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CostCell.swift; sourceTree = "<group>"; };
 		44B6B47C1DECEFDD00477D5B /* LengthCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LengthCell.swift; sourceTree = "<group>"; };
 		44B6B47E1DECF2AC00477D5B /* ListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
 		44B6B4821DEDC2E700477D5B /* SWCollectionPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWCollectionPicker.swift; sourceTree = "<group>"; };
+		44B6B4841DEDDBF100477D5B /* DefaultCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCell.swift; sourceTree = "<group>"; };
 		44EEB9E71DE3611B00F40DD6 /* TheAPIAwakens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheAPIAwakens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44EEB9EA1DE3611B00F40DD6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		44EEB9EC1DE3611B00F40DD6 /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
@@ -65,6 +69,7 @@
 				44AD7C821DECEE03001F5DC2 /* CostCell.swift */,
 				44B6B47C1DECEFDD00477D5B /* LengthCell.swift */,
 				44B6B4821DEDC2E700477D5B /* SWCollectionPicker.swift */,
+				44B6B4841DEDDBF100477D5B /* DefaultCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -99,6 +104,7 @@
 				44EEBA001DE36AA700F40DD6 /* SwapiClient.swift */,
 				44EEBA021DE3811D00F40DD6 /* Testing.playground */,
 				44B6B4811DEDC2C000477D5B /* Views */,
+				446C727B1DEE3F1F00ED55CE /* StringExtension.swift */,
 			);
 			path = TheAPIAwakens;
 			sourceTree = "<group>";
@@ -177,6 +183,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				44AD7C831DECEE03001F5DC2 /* CostCell.swift in Sources */,
+				44B6B4851DEDDBF100477D5B /* DefaultCell.swift in Sources */,
 				44EEB9FD1DE3679B00F40DD6 /* SwapiTypes.swift in Sources */,
 				44EEB9ED1DE3611B00F40DD6 /* HomeController.swift in Sources */,
 				44EEBA011DE36AA700F40DD6 /* SwapiClient.swift in Sources */,
@@ -184,6 +191,7 @@
 				44B6B4831DEDC2E700477D5B /* SWCollectionPicker.swift in Sources */,
 				44EEB9EB1DE3611B00F40DD6 /* AppDelegate.swift in Sources */,
 				44EEB9FF1DE3697A00F40DD6 /* APIClient.swift in Sources */,
+				446C727C1DEE3F1F00ED55CE /* StringExtension.swift in Sources */,
 				44B6B47F1DECF2AC00477D5B /* ListController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

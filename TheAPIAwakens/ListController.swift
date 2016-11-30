@@ -8,74 +8,107 @@
 
 import UIKit
 
-class ListController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+
+class ListController: UIViewController {
   
   @IBOutlet weak var starwarsCollectionPicker: SWCollectionPicker!
-  @IBOutlet weak var starwarsEntityTableView: UITableView!
   @IBOutlet weak var selectedEntityName: UILabel!
+  @IBOutlet weak var tableView: UITableView!
+  @IBOutlet weak var smallestNameLabel: UILabel!
+  @IBOutlet weak var largestNameLabel: UILabel!
   
-  var starwarsCollection: [Any] = []
+  var starwarsCollection: [StarWarsEntity] = []
+  var selectedEntity: StarWarsEntity! {
+    let entity = starwarsCollection[starwarsCollectionPicker.selectedRow(inComponent: 0)]
+    return entity
+  }
+  var currentConversionRate = 1.0
+  var currentCurrency = CurrencyUnit.GalacticCredits
 
     override func viewDidLoad() {
       super.viewDidLoad()
-      print(starwarsCollection)
       setNavTitle()
-      starwarsCollectionPicker.selectRow(1, inComponent: 0, animated: true)
+      updateSmallAndLargeLabels()
+      selectedEntityName.text = (selectedEntity.entity as! StarWarsType).name
     }
-
+  
+  override func viewWillAppear(_ animated: Bool) {
+    self.navigationItem.backBarButtonItem?.title = ""
+  }
+  
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Table view data source
+  func setNavTitle() {
+    if let _ = selectedEntity.entity as? StarWarsEntity.Person {
+      self.navigationItem.title = "Characters"
+    } else if let _ =  selectedEntity.entity as? StarWarsEntity.Vehicle {
+      self.navigationItem.title = "Vehicles"
+    } else if let _ = selectedEntity.entity as? StarWarsEntity.Starship {
+      self.navigationItem.title = "Starships"
+    }
+  }
+  
+  func updateSmallAndLargeLabels() {
+    if let sizes = SWAPIClient.sharedClient.smallestAndLargest(from: starwarsCollection) {
+      smallestNameLabel.text = sizes.smallest
+      largestNameLabel.text = sizes.largest
+    }
+  }
 
+}
+
+extension ListController: UITableViewDataSource, UITableViewDelegate {
+    // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+      tableView.rowHeight = 44.0
         return 5
     }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "defaultCell", for: indexPath) 
-
-        // Configure the cell...
-
-        return cell
+  
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let attributeName = selectedEntity.propertyNames[indexPath.row]
+    let attributeValue = selectedEntity.propertyValues[indexPath.row]
+    if attributeName == .Cost {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "CostCell", for: indexPath) as! CostCell
+      setup(costCell: cell)
+      cell.attributeNameLabel.text = attributeName.rawValue
+      cell.attributeValueLabel.text = attributeValue
+      return cell
+    } else if attributeName == .Length || attributeName == .Height {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "LengthCell", for: indexPath) as! LengthCell
+      cell.attributeNameLabel.text = attributeName.rawValue
+      cell.attributeValueLabel.text = attributeName == .Height ? attributeValue.toFeetFromCentimeters() : attributeValue.toFeetFromMeters()
+      cell.unitsLabel.text = "ft"
+      cell.resetConversionButtons()
+      return cell
+    } else {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexPath) as! DefaultCell
+      cell.attributeNameLabel.text = attributeName.rawValue
+      cell.attributeValueLabel.text = attributeValue.capitalized
+      return cell
     }
+  }
+  
+  func setup(costCell cell: CostCell) {
+    cell.delegate = self
+    cell.conversionRate = currentConversionRate
+    if cell.currentCurrency != currentCurrency {
+      cell.currentCurrency = currentCurrency
+    }
+  }
+
 
     // Override to support conditional editing of the table view.
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return false
     }
-
-
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-  
-  func setNavTitle() {
-    if starwarsCollection is [StarWarsEntity.Person] {
-      self.navigationItem.title = "Characters"
-    } else if starwarsCollection is [StarWarsEntity.Vehicle] {
-      self.navigationItem.title = "Vehicles"
-    } else if starwarsCollection is [StarWarsEntity.Starship] {
-      self.navigationItem.title = "Starships"
-    }
-  }
-
 }
 
 extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
@@ -88,13 +121,37 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
   }
   
   func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
-    let title = (starwarsCollection[row] as! StarWarsType).name
+    let title = (starwarsCollection[row].entity as! StarWarsType).name
     return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.white])
   }
   
   func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-    selectedEntityName.text = (starwarsCollection[row] as! StarWarsType).name
+    selectedEntityName.text = (starwarsCollection[row].entity as! StarWarsType).name
+    tableView.reloadData()
   }
-  
-  
+}
+
+extension ListController: CostCellDelegate {
+  func shouldChangeConversionRate(for cell: CostCell) {
+    let alertController = UIAlertController(title: "Change conversion rate", message: "How many USD is one credit worth?", preferredStyle: .alert)
+    alertController.addTextField { textField in
+      textField.placeholder = "Amount must be greater than 0"
+    }
+    let confirmAction = UIAlertAction(title: "Confirm Amount?", style: .default) { _ in
+        let userAmount = alertController.textFields?[0].text
+      do {
+        if let userAmount = userAmount {
+          try cell.changeConversionRate(usingString: userAmount)
+        }
+      } catch CostCellError.invalidConversionRate(message: let message)  {
+        print(message)
+      } catch let error {
+        print(error.localizedDescription)
+      }
+    }
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    alertController.addAction(confirmAction)
+    alertController.addAction(cancelAction)
+    present(alertController, animated: true, completion: nil)
+  }
 }
