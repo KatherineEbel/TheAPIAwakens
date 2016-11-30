@@ -10,6 +10,8 @@ import UIKit
 
 class HomeController: UIViewController {
   
+  @IBOutlet weak var progressView: UIView!
+  @IBOutlet weak var progressSpinner: UIActivityIndicatorView!
   var starwarsCollection = [StarWarsEntity]()
   var swapiClient = SWAPIClient.sharedClient
 
@@ -22,12 +24,24 @@ class HomeController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
+  func activateProgressSpinner() {
+    progressView.isHidden = false
+    progressSpinner.startAnimating()
+  }
+  
+  func deactivateProgressSpinner() {
+    progressView.isHidden = true
+    progressSpinner.stopAnimating()
+  }
+  
   @IBAction func fetchCharacters(_ sender: UIButton) {
+    activateProgressSpinner()
     swapiClient.fetchCollection(for: SWAPI.characters) { result in
       switch result {
         case .success(let entities):
           if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
             self.swapiClient.getPlanetNames(for: characters) { result in
+              self.deactivateProgressSpinner()
               switch result {
                 case .success(let characters):
                   self.starwarsCollection = characters
@@ -42,7 +56,9 @@ class HomeController: UIViewController {
   }
   
   @IBAction func fetchVehicles(_ sender: UIButton) {
+    activateProgressSpinner()
     swapiClient.fetchCollection(for: SWAPI.vehicles) { result in
+      self.deactivateProgressSpinner()
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
@@ -53,7 +69,9 @@ class HomeController: UIViewController {
   }
 
   @IBAction func fetchStarships(_ sender: UIButton) {
+    activateProgressSpinner()
     swapiClient.fetchCollection(for: SWAPI.starships) { result in
+      self.deactivateProgressSpinner()
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
