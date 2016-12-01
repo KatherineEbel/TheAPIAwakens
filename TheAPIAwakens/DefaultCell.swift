@@ -13,15 +13,14 @@ class DefaultCell: UITableViewCell {
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
   
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
+  override func awakeFromNib() {
+      super.awakeFromNib()
+      // Initialization code
+  }
+  
+  func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
+    attributeNameLabel.text = name.rawValue
+    attributeValueLabel.text = value
+  }
 
 }

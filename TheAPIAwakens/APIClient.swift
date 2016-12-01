@@ -52,12 +52,11 @@ extension APIClient {
         let task = session.dataTask(with: request, completionHandler: { data, response, error in
             
             guard let HTTPResponse = response as? HTTPURLResponse else {
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Missing HTTP Response", comment: "")]
+                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Missing HTTP Response, please check your connection.", comment: "")]
                 let error = NSError(domain: KAENetworkingErrorDomain, code: MissingHTTPResponseError, userInfo: userInfo)
                 completion(nil, nil, error)
                 return
             }
-            
             if data == nil {
                 if let error = error {
                     completion(nil, HTTPResponse, error as NSError?)
@@ -76,7 +75,6 @@ extension APIClient {
                 }
             }
         }) 
-        
         return task
     }
     
@@ -99,7 +97,6 @@ extension APIClient {
                 }
             }
         }
-        
         task.resume()
     }
   
@@ -115,7 +112,6 @@ extension APIClient {
               }
               return
           }
-          
           if let resource = parse(json) {
               completion(.success(resource))
           } else {

@@ -127,10 +127,10 @@ extension StarWarsEntity.Person {
       let birthYear = JSON["birth_year"] as? String {
       self.name = name
       self.home = homeworld
-      self.born = birthYear
-      self.height = height
-      self.eyes = eyes
-      self.hair = hair
+      self.born = birthYear.uppercased()
+      self.height = height.toFeetFromCentimeters()
+      self.eyes = eyes.capitalized
+      self.hair = hair.capitalized
       self.vehicles = vehicles
     } else {
       return nil
@@ -142,11 +142,11 @@ extension StarWarsEntity.Vehicle {
   init?(JSON: JSON) {
     if let name = JSON["name"] as? String, let model = JSON["model"] as? String, let length = JSON["length"] as? String, let cost = JSON["cost_in_credits"] as? String, let type = JSON["vehicle_class"] as? String, let crew = JSON["crew"] as? String {
       self.name = name
-      self.make = model
-      self.length = length
+      self.make = model.capitalized
+      self.length = length.toFeetFromMeters()
       self.cost = cost
       self.crew = crew
-      self.type = type
+      self.type = type.capitalized
     } else {
       return nil
     }
@@ -156,12 +156,12 @@ extension StarWarsEntity.Vehicle {
 extension StarWarsEntity.Starship {
   init?(JSON: JSON) {
     if let name = JSON["name"] as? String, let model = JSON["model"] as? String, let length = JSON["length"] as? String, let cost = JSON["cost_in_credits"] as? String, let type = JSON["starship_class"] as? String, let crew = JSON["crew"] as? String {
-      self.name = name
-      self.make = model
-      self.length = length
+      self.name = name.capitalized
+      self.make = model.capitalized
+      self.length = (length.replacingOccurrences(of: ",", with: "")).toFeetFromMeters()
       self.cost = cost
       self.crew = crew
-      self.type = type
+      self.type = type.capitalized
     } else {
       return nil
     }

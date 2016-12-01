@@ -8,6 +8,14 @@
 
 import UIKit
 
+enum HomeControllerError {
+  case noAPIResponse(message: String)
+}
+
+enum SegueIdentifier: String {
+  case viewCollection
+}
+
 class HomeController: UIViewController {
   
   @IBOutlet weak var progressView: UIView!
@@ -24,15 +32,6 @@ class HomeController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
-  func activateProgressSpinner() {
-    progressView.isHidden = false
-    progressSpinner.startAnimating()
-  }
-  
-  func deactivateProgressSpinner() {
-    progressView.isHidden = true
-    progressSpinner.stopAnimating()
-  }
   
   @IBAction func fetchCharacters(_ sender: UIButton) {
     activateProgressSpinner()
@@ -45,12 +44,12 @@ class HomeController: UIViewController {
               switch result {
                 case .success(let characters):
                   self.starwarsCollection = characters
-                  self.performSegue(withIdentifier: "viewCollection", sender: self)
-                case .failure(let error): print(error.localizedDescription)
+                  self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
+                case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
               }
             }
           }
-        case .failure(let error): print(error.localizedDescription)
+        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
       }
     }
   }
@@ -62,8 +61,8 @@ class HomeController: UIViewController {
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
-          self.performSegue(withIdentifier: "viewCollection", sender: self)
-        case .failure(let error): print(error.localizedDescription)
+          self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
+        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
       }
     }
   }
@@ -75,12 +74,32 @@ class HomeController: UIViewController {
       switch result {
         case .success(let collection):
           self.starwarsCollection = collection
-          self.performSegue(withIdentifier: "viewCollection", sender: self)
-        case .failure(let error): print(error.localizedDescription)
+          self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
+        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
       }
     }
   }
   
+  // MARK: Helper Methods
+  
+  func activateProgressSpinner() {
+    progressView.isHidden = false
+    progressSpinner.startAnimating()
+  }
+  
+  func deactivateProgressSpinner() {
+    progressView.isHidden = true
+    progressSpinner.stopAnimating()
+  }
+  
+  func alertForErrorMessage(_ message: String) {
+    let alertController = UIAlertController(title: "Oops! We had a problem!", message: message, preferredStyle: .alert)
+    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+    alertController.addAction(okAction)
+    present(alertController, animated: true, completion: nil)
+  }
+  
+  // MARK: Navigation
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     let listController = segue.destination as! ListController
     listController.starwarsCollection = self.starwarsCollection

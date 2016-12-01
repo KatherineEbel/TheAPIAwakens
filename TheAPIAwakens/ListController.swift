@@ -24,6 +24,7 @@ class ListController: UIViewController {
   }
   var currentConversionRate = 1.0
   var currentCurrency = CurrencyUnit.GalacticCredits
+  var currentMeasurementSystem = MeasurementSystem.english
 
     override func viewDidLoad() {
       super.viewDidLoad()
@@ -57,9 +58,17 @@ class ListController: UIViewController {
       largestNameLabel.text = sizes.largest
     }
   }
+  
+  func alertForErrorMessage(_ message: String) {
+    let alertController = UIAlertController(title: "Oops! We had a problem!", message: message, preferredStyle: .alert)
+    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+    alertController.addAction(okAction)
+    present(alertController, animated: true, completion: nil)
+  }
 
 }
 
+// MARK: Tableview datasource and delegate
 extension ListController: UITableViewDataSource, UITableViewDelegate {
     // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -76,51 +85,40 @@ extension ListController: UITableViewDataSource, UITableViewDelegate {
     let attributeValue = selectedEntity.propertyValues[indexPath.row]
     if attributeName == .Cost {
       let cell = tableView.dequeueReusableCell(withIdentifier: "CostCell", for: indexPath) as! CostCell
-      setup(costCell: cell)
-      cell.attributeNameLabel.text = attributeName.rawValue
-      cell.attributeValueLabel.text = attributeValue
+      cell.configure(withAttributeName: attributeName, andValue: attributeValue)
+      cell.delegate = self
       return cell
     } else if attributeName == .Length || attributeName == .Height {
       let cell = tableView.dequeueReusableCell(withIdentifier: "LengthCell", for: indexPath) as! LengthCell
-      cell.attributeNameLabel.text = attributeName.rawValue
-      cell.attributeValueLabel.text = attributeName == .Height ? attributeValue.toFeetFromCentimeters() : attributeValue.toFeetFromMeters()
-      cell.unitsLabel.text = "ft"
-      cell.resetConversionButtons()
+      cell.delegate = self
+      cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     } else {
       let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexPath) as! DefaultCell
-      cell.attributeNameLabel.text = attributeName.rawValue
-      cell.attributeValueLabel.text = attributeValue.capitalized
+      cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     }
   }
   
-  func setup(costCell cell: CostCell) {
-    cell.delegate = self
-    cell.conversionRate = currentConversionRate
-    if cell.currentCurrency != currentCurrency {
-      cell.currentCurrency = currentCurrency
-    }
+  // Override to support conditional editing of the table view.
+  func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+      // Return false if you do not want the specified item to be editable.
+      return false
   }
-
-
-    // Override to support conditional editing of the table view.
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return false
-    }
 }
 
+// MARK: UIPickerDatasource and delegate
 extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
   func numberOfComponents(in pickerView: UIPickerView) -> Int {
-    return 1
+    return 1 // only one component in picker with the entity's name
   }
   
   func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-    return starwarsCollection.count
+    return starwarsCollection.count // one row per entity
   }
   
   func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+    // change attributes of row to white text so it can be seen on dark background
     let title = (starwarsCollection[row].entity as! StarWarsType).name
     return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.white])
   }
@@ -131,7 +129,21 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
   }
 }
 
-extension ListController: CostCellDelegate {
+// MARK: Cell Delegates -- keep users choices in sync
+extension ListController: CostCellDelegate, LengthCellDelegate {
+  
+  func measurementSystemDidChange(for cell: LengthCell) {
+    currentMeasurementSystem = cell.currentMeasurementSystem
+  }
+  func currencyUnitDidChange(for cell: CostCell) {
+    currentCurrency = cell.currentCurrency
+  }
+  
+  func conversionRateDidChange(for cell: CostCell) {
+    currentConversionRate = cell.conversionRate
+  }
+  
+  // presents user with an alert that has a textfield in which they can enter a new conversion rate
   func shouldChangeConversionRate(for cell: CostCell) {
     let alertController = UIAlertController(title: "Change conversion rate", message: "How many USD is one credit worth?", preferredStyle: .alert)
     alertController.addTextField { textField in
@@ -144,9 +156,9 @@ extension ListController: CostCellDelegate {
           try cell.changeConversionRate(usingString: userAmount)
         }
       } catch CostCellError.invalidConversionRate(message: let message)  {
-        print(message)
+        self.alertForErrorMessage(message)
       } catch let error {
-        print(error.localizedDescription)
+        self.alertForErrorMessage(error.localizedDescription)
       }
     }
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)

@@ -67,7 +67,7 @@ final class SWAPIClient: APIClient {
             return nil
           }
           var character = characters[index]
-          character.home = name
+          character.home = name.capitalized
           self.dispatchGroup.leave()
           return StarWarsEntity.person(character)
       }, completion: { result in

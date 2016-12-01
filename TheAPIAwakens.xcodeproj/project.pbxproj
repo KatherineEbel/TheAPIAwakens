@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		446C727C1DEE3F1F00ED55CE /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446C727B1DEE3F1F00ED55CE /* StringExtension.swift */; };
+		446C727C1DEE3F1F00ED55CE /* TypeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446C727B1DEE3F1F00ED55CE /* TypeExtensions.swift */; };
 		44AD7C831DECEE03001F5DC2 /* CostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AD7C821DECEE03001F5DC2 /* CostCell.swift */; };
 		44B6B47D1DECEFDD00477D5B /* LengthCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B47C1DECEFDD00477D5B /* LengthCell.swift */; };
 		44B6B47F1DECF2AC00477D5B /* ListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B6B47E1DECF2AC00477D5B /* ListController.swift */; };
@@ -24,7 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		446C727B1DEE3F1F00ED55CE /* StringExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
+		446C727B1DEE3F1F00ED55CE /* TypeExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeExtensions.swift; sourceTree = "<group>"; };
 		44AD7C821DECEE03001F5DC2 /* CostCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CostCell.swift; sourceTree = "<group>"; };
 		44B6B47C1DECEFDD00477D5B /* LengthCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LengthCell.swift; sourceTree = "<group>"; };
 		44B6B47E1DECF2AC00477D5B /* ListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListController.swift; sourceTree = "<group>"; };
@@ -104,7 +104,7 @@
 				44EEBA001DE36AA700F40DD6 /* SwapiClient.swift */,
 				44EEBA021DE3811D00F40DD6 /* Testing.playground */,
 				44B6B4811DEDC2C000477D5B /* Views */,
-				446C727B1DEE3F1F00ED55CE /* StringExtension.swift */,
+				446C727B1DEE3F1F00ED55CE /* TypeExtensions.swift */,
 			);
 			path = TheAPIAwakens;
 			sourceTree = "<group>";
@@ -191,7 +191,7 @@
 				44B6B4831DEDC2E700477D5B /* SWCollectionPicker.swift in Sources */,
 				44EEB9EB1DE3611B00F40DD6 /* AppDelegate.swift in Sources */,
 				44EEB9FF1DE3697A00F40DD6 /* APIClient.swift in Sources */,
-				446C727C1DEE3F1F00ED55CE /* StringExtension.swift in Sources */,
+				446C727C1DEE3F1F00ED55CE /* TypeExtensions.swift in Sources */,
 				44B6B47F1DECF2AC00477D5B /* ListController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

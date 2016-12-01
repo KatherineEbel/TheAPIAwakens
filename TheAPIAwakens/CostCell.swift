@@ -8,10 +8,6 @@
 
 import UIKit
 
-typealias Dollars = Double
-typealias GalacticCredits = Double
-
-
 enum CostCellError: Error {
   case invalidConversionRate(message: String)
 }
@@ -21,8 +17,12 @@ enum CurrencyUnit {
   case GalacticCredits
 }
 
-protocol CostCellDelegate {
+protocol CostCellDelegate: class {
+  var currentCurrency: CurrencyUnit { get set }
+  var currentConversionRate: Double { get set }
   func shouldChangeConversionRate(for cell: CostCell)
+  func currencyUnitDidChange(for cell: CostCell)
+  func conversionRateDidChange(for cell: CostCell)
 }
 
 class CostCell: UITableViewCell {
@@ -31,16 +31,21 @@ class CostCell: UITableViewCell {
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
   @IBOutlet weak var conversionButton: UIButton!
-  
-  var conversionRate = 1.0
-  var currentCurrency = CurrencyUnit.GalacticCredits {
+  weak var delegate: CostCellDelegate?
+  var conversionRate = 1.0 {
     didSet {
-      if let delegate = delegate as? ListController {
-        delegate.currentCurrency = self.currentCurrency
+      if let delegate = delegate {
+        delegate.conversionRateDidChange(for: self)
       }
     }
   }
-  var delegate: CostCellDelegate! = nil
+  var currentCurrency = CurrencyUnit.GalacticCredits {
+    didSet {
+      if let delegate = delegate {
+        delegate.currencyUnitDidChange(for: self)
+      }
+    }
+  }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -54,7 +59,8 @@ class CostCell: UITableViewCell {
     currentCurrency = .USDollars
     conversionButton.setBackgroundImage(nil, for: .normal)
     conversionButton.setTitle("$", for: .normal)
-    let rounded = roundToPlaces(value: galacticCredits * conversionRate, decimalPlaces: 2)
+    var rounded = galacticCredits * conversionRate
+    rounded.roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = String(rounded)
   }
   
@@ -66,8 +72,18 @@ class CostCell: UITableViewCell {
     let image = UIImage(named: "GalacticCredit")
     conversionButton.setBackgroundImage(image, for: .normal)
     conversionButton.setTitle("", for: .normal)
-    let rounded = roundToPlaces(value: dollars / conversionRate, decimalPlaces: 2)
+    var rounded = dollars / conversionRate
+    rounded.roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = String(rounded)
+  }
+  
+  func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
+    attributeNameLabel.text = name.rawValue
+    attributeValueLabel.text = value
+    if let delegate = delegate {
+      currentCurrency = delegate.currentCurrency
+      conversionRate = delegate.currentConversionRate
+    }
   }
   
   @IBAction func convertCurrency(_ sender: UIButton) {
@@ -94,6 +110,12 @@ class CostCell: UITableViewCell {
     guard let amount = Double(value) else {
       throw CostCellError.invalidConversionRate(message: "Could not convert given value to a valid conversion rate")
     }
+    guard amount > 0.0 else {
+      throw CostCellError.invalidConversionRate(message: "Value must be greater than 0")
+    }
     conversionRate = amount
+    if currentCurrency == .USDollars {
+      switchToCurrency(.USDollars)
+    }
   }
 }

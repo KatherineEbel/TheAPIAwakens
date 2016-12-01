@@ -2,8 +2,14 @@
 
 import Foundation
 
-let baseURL = "http://swapi.co/api/"
-let planetURL = "http://swapi.co/api/planets/20/"
-let endIndex = baseURL.endIndex
+extension Double {
+  // Round the given value to a specified number
+  // of decimal places
+  mutating func roundToPlaces(decimalPlaces: Int) {
+    let divisor = pow(10.0, Double(decimalPlaces))
+    self = (self * divisor).rounded() / divisor
+  } 
+}
 
-let path = planetURL.substring(from: endIndex)
+var double = 1.345678
+double.roundToPlaces(decimalPlaces: 2)
