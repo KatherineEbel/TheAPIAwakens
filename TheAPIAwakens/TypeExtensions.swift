@@ -8,38 +8,47 @@
 
 import Foundation
 
+// this String extension is for convenience of converting API values in to the correct measurements
+
 extension String {
   func toFeetFromCentimeters() -> String {
-    let centimeters = Double(self)!
-    let feetPerCentimeter = 0.0328084
-    var result = centimeters * feetPerCentimeter
-    result.roundToPlaces(decimalPlaces: 2)
-    return String(result)
+    if let centimeters = Double(self) {
+      let feetPerCentimeter = 0.0328084
+      let result = String(centimeters * feetPerCentimeter).roundToPlaces(decimalPlaces: 2)
+      return String(result)
+    } else {
+      return self
+    }
   }
   
   func fromFeetToMeters() -> String {
-    let feet = Double(self)!
-    let feetPerMeter = 3.28084
-    var result = feet / feetPerMeter
-    result.roundToPlaces(decimalPlaces: 2)
-    return String(result)
+    if let feet = Double(self) {
+      let feetPerMeter = 3.28084
+      let result = String(feet / feetPerMeter).roundToPlaces(decimalPlaces: 2)
+      return result
+    } else {
+      return self
+    }
   }
   
   func toFeetFromMeters() -> String {
-    let meters = Double(self)!
-    let metersPerFoot = 0.3048
-    var result = (meters / metersPerFoot)
-    result.roundToPlaces(decimalPlaces: 2)
-    return String(result)
+    if let meters = Double(self) {
+      let metersPerFoot = 0.3048
+      let feet = String((meters / metersPerFoot)).roundToPlaces(decimalPlaces: 2)
+      return feet
+    } else {
+      return self
+    }
   }
   
-}
-
-extension Double {
-  // Round the given value to a specified number
-  // of decimal places
-  mutating func roundToPlaces(decimalPlaces: Int) {
-    let divisor = pow(10.0, Double(decimalPlaces))
-    self = (self * divisor).rounded() / divisor
+  func roundToPlaces(decimalPlaces: Int) -> String {
+    if let double = Double(self) {
+      let divisor = pow(10.0, Double(decimalPlaces))
+      let rounded = (double * divisor).rounded() / divisor
+      let result = String(rounded)
+      return result
+    } else {
+      return self
+    }
   } 
 }

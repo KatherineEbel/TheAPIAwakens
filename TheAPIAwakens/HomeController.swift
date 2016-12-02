@@ -8,6 +8,7 @@
 
 import UIKit
 
+// MARK: HomeController Helper Types
 enum HomeControllerError {
   case noAPIResponse(message: String)
 }
@@ -26,57 +27,49 @@ class HomeController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
   }
-
+  
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
     // Dispose of any resources that can be recreated.
   }
   
+  func fetch(_ endpoint: Endpoint, completion: @escaping (() -> ())) {
+    activateProgressSpinner()
+    swapiClient.fetchPage(for: endpoint) { result in
+      switch result {
+        case .success(let collection): self.starwarsCollection = collection
+        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+      }
+      completion()
+    }
+  }
   
   @IBAction func fetchCharacters(_ sender: UIButton) {
-    activateProgressSpinner()
-    swapiClient.fetchCollection(for: SWAPI.characters) { result in
-      switch result {
-        case .success(let entities):
-          if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
-            self.swapiClient.getPlanetNames(for: characters) { result in
-              self.deactivateProgressSpinner()
-              switch result {
-                case .success(let characters):
-                  self.starwarsCollection = characters
-                  self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
-                case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
-              }
-            }
-          }
-        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+    fetch(SWAPI.characters) {
+      let entities = self.starwarsCollection.map { $0.entity as! StarWarsEntity.Person }
+      self.swapiClient.getPlanetNames(for: entities) { result in
+        self.deactivateProgressSpinner()
+        switch result {
+          case .success(let updatedEntities):
+            self.starwarsCollection = updatedEntities
+            self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
+          case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+        }
       }
     }
   }
   
   @IBAction func fetchVehicles(_ sender: UIButton) {
-    activateProgressSpinner()
-    swapiClient.fetchCollection(for: SWAPI.vehicles) { result in
+    fetch(SWAPI.vehicles) {
       self.deactivateProgressSpinner()
-      switch result {
-        case .success(let collection):
-          self.starwarsCollection = collection
-          self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
-        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
-      }
+      self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
     }
   }
 
   @IBAction func fetchStarships(_ sender: UIButton) {
-    activateProgressSpinner()
-    swapiClient.fetchCollection(for: SWAPI.starships) { result in
+    fetch(SWAPI.starships) {
       self.deactivateProgressSpinner()
-      switch result {
-        case .success(let collection):
-          self.starwarsCollection = collection
-          self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
-        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
-      }
+      self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: nil)
     }
   }
   

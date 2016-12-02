@@ -18,14 +18,28 @@ protocol JSONDecodable {
 }
 
 protocol Endpoint {
-  var baseURL: URL { get }
+  var baseURL: String { get }
   var path: String { get }
-  var request: URLRequest { get }
+  var parameters: [String: Any]? { get }
 }
 
 extension Endpoint {
+  var queryComponents: [URLQueryItem] {
+    var components = [URLQueryItem]()
+    if let params = parameters {
+      for (key, value) in params {
+        let queryItem = URLQueryItem(name: key, value: "\(value)")
+        components.append(queryItem)
+      }
+    }
+    return components
+  }
+  
   var request: URLRequest {
-    let url = URL(string: path, relativeTo: baseURL)!
+    var components = URLComponents(string: baseURL)!
+    components.path = path
+    let urlString = "\(baseURL)\(path)"
+    let url = URL(string: urlString)!
     return URLRequest(url: url)
   }
 }
@@ -78,7 +92,7 @@ extension APIClient {
         return task
     }
     
-  func fetch<T: JSONDecodable>(_ request: URLRequest, parse: @escaping (JSON) -> T?, completion: @escaping (APIResult<T>) -> Void) {
+  func fetch<T>(_ request: URLRequest, parse: @escaping (JSON) -> T?, completion: @escaping (APIResult<T>) -> Void) {
         let task = JSONTaskWithRequest(request) { json, response, error in
             DispatchQueue.main.async {
                 guard let json = json else {

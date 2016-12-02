@@ -138,7 +138,9 @@
                             <constraint firstAttribute="trailing" secondItem="PW3-9w-IVm" secondAttribute="trailing" id="ztk-xo-As3"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Choose A Collection" id="ycu-Kr-Qqx"/>
+                    <navigationItem key="navigationItem" title="Choose A Collection" id="ycu-Kr-Qqx">
+                        <barButtonItem key="backBarButtonItem" title="                " id="BFc-VU-3xQ"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="progressSpinner" destination="FLy-NH-rEP" id="gJf-Z1-pui"/>
                         <outlet property="progressView" destination="PW3-9w-IVm" id="knb-KZ-iw0"/>
@@ -437,11 +439,17 @@
         <!--Navigation Controller-->
         <scene sceneID="qpC-26-WrS">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ZyR-Iv-rXf" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" modalTransitionStyle="flipHorizontal" id="ZyR-Iv-rXf" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="3wR-PI-UDV">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" barStyle="black" id="3wR-PI-UDV">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="barTintColor" red="0.050980392156862744" green="0.062745098039215685" blue="0.082352941176470587" alpha="1" colorSpace="calibratedRGB"/>
+                        <textAttributes key="titleTextAttributes">
+                            <color key="textColor" red="0.47843137250000001" green="0.80784313730000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        </textAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>

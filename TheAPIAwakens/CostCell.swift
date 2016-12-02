@@ -59,9 +59,8 @@ class CostCell: UITableViewCell {
     currentCurrency = .USDollars
     conversionButton.setBackgroundImage(nil, for: .normal)
     conversionButton.setTitle("$", for: .normal)
-    var rounded = galacticCredits * conversionRate
-    rounded.roundToPlaces(decimalPlaces: 2)
-    attributeValueLabel.text = String(rounded)
+    let rounded = String(galacticCredits * conversionRate).roundToPlaces(decimalPlaces: 2)
+    attributeValueLabel.text = rounded
   }
   
   func convertToGalacticCredits() {
@@ -72,14 +71,13 @@ class CostCell: UITableViewCell {
     let image = UIImage(named: "GalacticCredit")
     conversionButton.setBackgroundImage(image, for: .normal)
     conversionButton.setTitle("", for: .normal)
-    var rounded = dollars / conversionRate
-    rounded.roundToPlaces(decimalPlaces: 2)
-    attributeValueLabel.text = String(rounded)
+    let rounded = String(dollars / conversionRate).roundToPlaces(decimalPlaces: 2)
+    attributeValueLabel.text = rounded
   }
   
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value
+    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
     if let delegate = delegate {
       currentCurrency = delegate.currentCurrency
       conversionRate = delegate.currentConversionRate

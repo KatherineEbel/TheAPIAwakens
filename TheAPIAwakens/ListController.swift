@@ -25,22 +25,55 @@ class ListController: UIViewController {
   var currentConversionRate = 1.0
   var currentCurrency = CurrencyUnit.GalacticCredits
   var currentMeasurementSystem = MeasurementSystem.english
+  var isLoading = true
 
-    override func viewDidLoad() {
-      super.viewDidLoad()
-      setNavTitle()
-      updateSmallAndLargeLabels()
-      selectedEntityName.text = (selectedEntity.entity as! StarWarsType).name
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    setNavTitle()
+    updateSmallAndLargeLabels()
+    selectedEntityName.text = (selectedEntity.entity as! StarWarsType).name
+    getNextGroup()
+  }
+  
+  func getNextGroup() {
+    let client = SWAPIClient.sharedClient
+    if let nextPage = client.nextPage {
+      client.fetchPage(for: nextPage, completion: { result in
+        switch result {
+          case .success(let entities):
+            if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
+              client.getPlanetNames(for: characters) { result in
+                switch result {
+                  case .success(let updatedCharacters):
+                    self.starwarsCollection.append(contentsOf: updatedCharacters)
+                    self.starwarsCollectionPicker.reloadAllComponents()
+                  case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+                }
+              }
+            } else {
+              self.starwarsCollection.append(contentsOf: entities)
+              self.starwarsCollectionPicker.reloadAllComponents()
+            }
+          case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+        }
+        if client.nextPage != nil {
+          self.getNextGroup()
+        } else {
+          self.isLoading = false
+          self.starwarsCollectionPicker.reloadAllComponents()
+        }
+      })
     }
+  }
   
   override func viewWillAppear(_ animated: Bool) {
     self.navigationItem.backBarButtonItem?.title = ""
   }
   
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+  override func didReceiveMemoryWarning() {
+      super.didReceiveMemoryWarning()
+      // Dispose of any resources that can be recreated.
+  }
 
   func setNavTitle() {
     if let _ = selectedEntity.entity as? StarWarsEntity.Person {
@@ -68,6 +101,12 @@ class ListController: UIViewController {
 
 }
 
+enum ListControllerCellIdentifier: String {
+  case DefaultCell
+  case LengthCell
+  case CostCell
+}
+
 // MARK: Tableview datasource and delegate
 extension ListController: UITableViewDataSource, UITableViewDelegate {
     // MARK: - Table view data source
@@ -77,24 +116,24 @@ extension ListController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
       tableView.rowHeight = 44.0
-        return 5
+      return selectedEntity.propertyNames.count
     }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let attributeName = selectedEntity.propertyNames[indexPath.row]
     let attributeValue = selectedEntity.propertyValues[indexPath.row]
     if attributeName == .Cost {
-      let cell = tableView.dequeueReusableCell(withIdentifier: "CostCell", for: indexPath) as! CostCell
+      let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.CostCell.rawValue, for: indexPath) as! CostCell
       cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       cell.delegate = self
       return cell
     } else if attributeName == .Length || attributeName == .Height {
-      let cell = tableView.dequeueReusableCell(withIdentifier: "LengthCell", for: indexPath) as! LengthCell
+      let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.LengthCell.rawValue, for: indexPath) as! LengthCell
       cell.delegate = self
       cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     } else {
-      let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexPath) as! DefaultCell
+      let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.DefaultCell.rawValue, for: indexPath) as! DefaultCell
       cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     }
@@ -114,16 +153,25 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
   }
   
   func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-    return starwarsCollection.count // one row per entity
+    return isLoading ? starwarsCollection.count + 1 : starwarsCollection.count
   }
   
+  // set title for row and change attributes of row to white text so it can be seen on dark background
   func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
-    // change attributes of row to white text so it can be seen on dark background
-    let title = (starwarsCollection[row].entity as! StarWarsType).name
+    var title = "Loading..."
+    if isLoading && row == starwarsCollection.count {
+      return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.white])
+    } else {
+      title = (starwarsCollection[row].entity as! StarWarsType).name
+    }
     return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.white])
   }
   
+  // update controller's selected entity when user picks
   func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    if isLoading && row == starwarsCollection.count {
+      return
+    }
     selectedEntityName.text = (starwarsCollection[row].entity as! StarWarsType).name
     tableView.reloadData()
   }

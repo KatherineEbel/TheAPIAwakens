@@ -81,7 +81,7 @@ class LengthCell: UITableViewCell {
   // view controller passes in attribute values in cell for row at indexPath
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value
+    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
     unitsLabel.text = MeasurementSystem.english.rawValue
     convertToMeasurementSystem(delegate!.currentMeasurementSystem)
   }

@@ -13,3 +13,5 @@ extension Double {
 
 var double = 1.345678
 double.roundToPlaces(decimalPlaces: 2)
+
+

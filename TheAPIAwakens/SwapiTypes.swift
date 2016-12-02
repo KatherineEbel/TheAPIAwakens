@@ -46,6 +46,7 @@ enum StarWarsEntity: JSONDecodable {
     }
   }
   
+  // return array of property names for each type. Makes easier for viewController to setup cells
   var propertyNames: [PropertyNames] {
     switch self {
       case .person(_):
@@ -75,6 +76,7 @@ enum StarWarsEntity: JSONDecodable {
     let hair: String
     let vehicles: [String]?
   }
+  
   struct Vehicle: Manned, StarWarsType {
     let name: String
     let make: String
@@ -82,9 +84,8 @@ enum StarWarsEntity: JSONDecodable {
     let length: String
     let type: String
     let crew: String
-    
-    
   }
+  
   struct Starship: Manned, StarWarsType {
     let name: String
     let make: String
@@ -94,6 +95,7 @@ enum StarWarsEntity: JSONDecodable {
     let crew: String
   }
   
+  // allows initializing specific types from any JSON dictionary
   init?(JSON: [String : Any]) {
     if JSON.keys.contains("birth_year") {
       if let person = Person(JSON: JSON) {
@@ -144,7 +146,7 @@ extension StarWarsEntity.Vehicle {
       self.name = name
       self.make = model.capitalized
       self.length = length.toFeetFromMeters()
-      self.cost = cost
+      self.cost = cost.roundToPlaces(decimalPlaces: 2)
       self.crew = crew
       self.type = type.capitalized
     } else {
@@ -159,7 +161,7 @@ extension StarWarsEntity.Starship {
       self.name = name.capitalized
       self.make = model.capitalized
       self.length = (length.replacingOccurrences(of: ",", with: "")).toFeetFromMeters()
-      self.cost = cost
+      self.cost = cost.roundToPlaces(decimalPlaces: 2)
       self.crew = crew
       self.type = type.capitalized
     } else {

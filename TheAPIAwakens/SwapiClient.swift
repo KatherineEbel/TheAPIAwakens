@@ -8,31 +8,42 @@
 
 import UIKit
 
+enum SWAPIClientError: Error {
+  case unsuccessfulRequest(message: String)
+}
+
 enum SWAPI: Endpoint {
   case characters
   case vehicles
   case starships
   case planets(String)
+  case nextPage(String)
   
-  var baseURL: URL {
-    return URL(string: "http://swapi.co/api/")!
+  var baseURL: String {
+    return "http://swapi.co/api/"
   }
   
   var path: String {
     switch self {
-      case .characters: return "people"
-      case .vehicles: return "vehicles"
-      case .starships: return "starships"
+      case .characters: return "people/"
+      case .vehicles: return "vehicles/"
+      case .starships: return "starships/"
       case .planets(let planetURLString):
-        let endIndex = "http://swapi.co/api/".endIndex
-        let path = planetURLString.substring(from: endIndex)
+        let path = planetURLString.substring(from: baseURL.endIndex)
         return path
+      case .nextPage(let urlString):
+        return urlString.substring(from: baseURL.endIndex)
     }
+  }
+  
+  var parameters: [String : Any]? {
+    return nil
   }
 }
 
 final class SWAPIClient: APIClient {
   static let sharedClient = SWAPIClient()
+  var nextPage: Endpoint?
   let configuration: URLSessionConfiguration
   let dispatchGroup = DispatchGroup()
   lazy var session: URLSession = {
@@ -47,38 +58,53 @@ final class SWAPIClient: APIClient {
     self.init(configuration: .default)
   }
   
-  func fetchCollection(for endpoint: Endpoint, completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
+  func fetchPage(for endpoint: Endpoint, completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
     fetch(endpoint: endpoint, parse: { (json) -> [StarWarsEntity]? in
-      guard let results = json["results"] as? [[String : Any]] else {
+      guard let results = json["results"] as? [[String: Any]] else {
         return nil
       }
-      return results.flatMap { StarWarsEntity.init(JSON: $0) }
+      if let next = json["next"] as? String {
+        self.nextPage = SWAPI.nextPage(next)
+      } else {
+        self.nextPage = nil
+      }
+      return results.flatMap { StarWarsEntity(JSON: $0) }
     }, completion: completion)
   }
   
-  func getPlanetNames(for characters: [StarWarsEntity.Person], completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
+  func getPlanetNames(for characters: [StarWarsEntity.Person], completion: @escaping (APIResult<[StarWarsEntity]>) -> Void)  {
     var updatedCharacters: [StarWarsEntity] = []
-    let planets = characters.map { $0.home }
-    for (index, planet) in planets.enumerated() {
-      let request = SWAPI.planets(planet).request
+    var error = NSError()
+    // turn list of planets into a set to avoid duplicated network requests
+    let planets = Set(characters.map { $0.home })
+    for (_, planet) in planets.enumerated() {
       dispatchGroup.enter()
-      fetch(request, parse: { (json) -> StarWarsEntity? in
+      fetch(endpoint: SWAPI.planets(planet), parse: { (json) -> [StarWarsEntity]? in
           guard let name = json["name"] as? String else {
             return nil
           }
-          var character = characters[index]
-          character.home = name.capitalized
-          self.dispatchGroup.leave()
-          return StarWarsEntity.person(character)
+        let matching = characters.filter({ (person) -> Bool in
+          person.home == planet
+        }).map { person -> (StarWarsEntity) in
+          var mutablePerson = person
+          mutablePerson.home = name.capitalized
+          return StarWarsEntity.person(mutablePerson)
+        }
+        self.dispatchGroup.leave()
+        return matching
       }, completion: { result in
         switch result {
-          case .success(let character): updatedCharacters.append(character)
-          case .failure(let error): print(error.localizedDescription)
+          case .success(let updated): updatedCharacters.append(contentsOf: updated)
+          case .failure(let partialError): error = partialError as NSError
         }
       })
     }
     dispatchGroup.notify(queue: .main) {
-      completion(APIResult.success(updatedCharacters))
+      if updatedCharacters.count == characters.count {
+        completion(APIResult.success(updatedCharacters))
+      } else {
+        completion(APIResult.failure(error))
+      }
     }
   }
   
@@ -88,9 +114,17 @@ final class SWAPIClient: APIClient {
       let first = firstEntity.entity
       let second = secondEntity.entity
       if let first = first as? StarWarsEntity.Person, let second  = second as? StarWarsEntity.Person {
-        return Double(first.height)! < Double(second.height)!
+        if first.height == "unknown" || second.height == "unknown" {
+          return false
+        } else {
+          return Double(first.height)! < Double(second.height)!
+        }
       } else if let first = first as? Manned, let second = second as? Manned {
-        return Double(first.length)! < Double(second.length)!
+        if first.length == "unknown" || second.length == "unknown" {
+          return false
+        } else {
+          return Double(first.length)! < Double(second.length)!
+        }
       } else {
         return false
       }
