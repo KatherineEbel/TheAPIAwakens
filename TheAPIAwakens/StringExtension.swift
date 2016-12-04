@@ -15,27 +15,35 @@ extension String {
     if let centimeters = Double(self) {
       let feetPerCentimeter = 0.0328084
       let result = String(centimeters * feetPerCentimeter).roundToPlaces(decimalPlaces: 2)
-      return String(result)
+      return "\(result)ft"
     } else {
       return self
     }
   }
   
   func fromFeetToMeters() -> String {
-    if let feet = Double(self) {
+    if self.hasSuffix("m") || self == "unknown" {
+      return self
+    }
+    let num = self.replacingOccurrences(of: "ft", with: "")
+    if let feet = Double(num) {
       let feetPerMeter = 3.28084
-      let result = String(feet / feetPerMeter).roundToPlaces(decimalPlaces: 2)
-      return result
+      let meters = String(feet / feetPerMeter).roundToPlaces(decimalPlaces: 2)
+      return "\(meters)m"
     } else {
       return self
     }
   }
   
   func toFeetFromMeters() -> String {
-    if let meters = Double(self) {
+    if self.hasSuffix("ft") || self == "unknown" {
+      return self
+    }
+    let num = self.replacingOccurrences(of: "m", with: "")
+    if let meters = Double(num) {
       let metersPerFoot = 0.3048
       let feet = String((meters / metersPerFoot)).roundToPlaces(decimalPlaces: 2)
-      return feet
+      return "\(feet)ft"
     } else {
       return self
     }

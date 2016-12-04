@@ -25,6 +25,24 @@ enum StarWarsEntity: JSONDecodable {
   case vehicle(Vehicle)
   case starship(Starship)
   
+  // SWAPI keys
+  enum SWKeys: String {
+    case name
+    case homeworld
+    case height
+    case eye_color
+    case hair_color
+    case birth_year
+    case vehicles
+    case model
+    case starship_class
+    case vehicle_class
+    case crew
+    case cost_in_credits
+    case length
+  }
+  
+  // SWEntity Property names
   enum PropertyNames: String {
     case Born
     case Home
@@ -97,19 +115,19 @@ enum StarWarsEntity: JSONDecodable {
   
   // allows initializing specific types from any JSON dictionary
   init?(JSON: [String : Any]) {
-    if JSON.keys.contains("birth_year") {
+    if JSON.keys.contains(SWKeys.birth_year.rawValue) {
       if let person = Person(JSON: JSON) {
         self = .person(person)
       } else {
         return nil
       }
-    } else if JSON.keys.contains("vehicle_class") {
+    } else if JSON.keys.contains(SWKeys.vehicle_class.rawValue) {
       if let vehicle = Vehicle(JSON: JSON) {
         self = .vehicle(vehicle)
       } else {
         return nil
       }
-    } else if JSON.keys.contains("starship_class") {
+    } else if JSON.keys.contains(SWKeys.starship_class.rawValue) {
       if let starship = Starship(JSON: JSON) {
         self = .starship(starship)
       } else {
@@ -121,12 +139,12 @@ enum StarWarsEntity: JSONDecodable {
   }
 }
 
-
 extension StarWarsEntity.Person {
   init?(JSON: JSON) {
-    if let name = JSON["name"] as? String, let homeworld = JSON["homeworld"] as? String, let height = JSON["height"] as? String,
-      let eyes = JSON["eye_color"] as? String, let hair = JSON["hair_color"] as? String, let vehicles = JSON["vehicles"] as? [String],
-      let birthYear = JSON["birth_year"] as? String {
+    let keys = StarWarsEntity.SWKeys.self
+    if let name = JSON[keys.name.rawValue] as? String, let homeworld = JSON[keys.homeworld.rawValue] as? String, let height = JSON[keys.height.rawValue] as? String,
+      let eyes = JSON[keys.eye_color.rawValue] as? String, let hair = JSON[keys.hair_color.rawValue] as? String, let vehicles = JSON[keys.vehicles.rawValue] as? [String],
+      let birthYear = JSON[keys.birth_year.rawValue] as? String {
       self.name = name
       self.home = homeworld
       self.born = birthYear.uppercased()
@@ -142,10 +160,11 @@ extension StarWarsEntity.Person {
 
 extension StarWarsEntity.Vehicle {
   init?(JSON: JSON) {
-    if let name = JSON["name"] as? String, let model = JSON["model"] as? String, let length = JSON["length"] as? String, let cost = JSON["cost_in_credits"] as? String, let type = JSON["vehicle_class"] as? String, let crew = JSON["crew"] as? String {
+    let keys = StarWarsEntity.SWKeys.self
+    if let name = JSON[keys.name.rawValue] as? String, let model = JSON[keys.model.rawValue] as? String, let length = JSON[keys.length.rawValue] as? String, let cost = JSON[keys.cost_in_credits.rawValue] as? String, let type = JSON[keys.vehicle_class.rawValue] as? String, let crew = JSON[keys.crew.rawValue] as? String {
       self.name = name
       self.make = model.capitalized
-      self.length = length.toFeetFromMeters()
+      self.length = length
       self.cost = cost.roundToPlaces(decimalPlaces: 2)
       self.crew = crew
       self.type = type.capitalized
@@ -157,10 +176,11 @@ extension StarWarsEntity.Vehicle {
 
 extension StarWarsEntity.Starship {
   init?(JSON: JSON) {
-    if let name = JSON["name"] as? String, let model = JSON["model"] as? String, let length = JSON["length"] as? String, let cost = JSON["cost_in_credits"] as? String, let type = JSON["starship_class"] as? String, let crew = JSON["crew"] as? String {
+    let keys = StarWarsEntity.SWKeys.self
+    if let name = JSON[keys.name.rawValue] as? String, let model = JSON[keys.model.rawValue] as? String, let length = JSON[keys.length.rawValue] as? String, let cost = JSON[keys.cost_in_credits.rawValue] as? String, let type = JSON[keys.starship_class.rawValue] as? String, let crew = JSON[keys.crew.rawValue] as? String {
       self.name = name.capitalized
       self.make = model.capitalized
-      self.length = (length.replacingOccurrences(of: ",", with: "")).toFeetFromMeters()
+      self.length = length.replacingOccurrences(of: ",", with: "")
       self.cost = cost.roundToPlaces(decimalPlaces: 2)
       self.crew = crew
       self.type = type.capitalized

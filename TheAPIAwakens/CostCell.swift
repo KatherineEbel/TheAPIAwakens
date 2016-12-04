@@ -18,11 +18,10 @@ enum CurrencyUnit {
 }
 
 protocol CostCellDelegate: class {
-  var currentCurrency: CurrencyUnit { get set }
-  var currentConversionRate: Double { get set }
+  var defaults: SWSettings { get set }
   func shouldChangeConversionRate(for cell: CostCell)
   func currencyUnitDidChange(for cell: CostCell)
-  func conversionRateDidChange(for cell: CostCell)
+  func exchangeRateDidChange(for cell: CostCell)
 }
 
 class CostCell: UITableViewCell {
@@ -32,10 +31,10 @@ class CostCell: UITableViewCell {
   @IBOutlet weak var attributeValueLabel: UILabel!
   @IBOutlet weak var conversionButton: UIButton!
   weak var delegate: CostCellDelegate?
-  var conversionRate = 1.0 {
+  var exchangeRate = 1.0 {
     didSet {
       if let delegate = delegate {
-        delegate.conversionRateDidChange(for: self)
+        delegate.exchangeRateDidChange(for: self)
       }
     }
   }
@@ -59,7 +58,7 @@ class CostCell: UITableViewCell {
     currentCurrency = .USDollars
     conversionButton.setBackgroundImage(nil, for: .normal)
     conversionButton.setTitle("$", for: .normal)
-    let rounded = String(galacticCredits * conversionRate).roundToPlaces(decimalPlaces: 2)
+    let rounded = String(galacticCredits * exchangeRate).roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = rounded
   }
   
@@ -71,17 +70,16 @@ class CostCell: UITableViewCell {
     let image = UIImage(named: "GalacticCredit")
     conversionButton.setBackgroundImage(image, for: .normal)
     conversionButton.setTitle("", for: .normal)
-    let rounded = String(dollars / conversionRate).roundToPlaces(decimalPlaces: 2)
+    let rounded = String(dollars / exchangeRate).roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = rounded
   }
   
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
     attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
-    if let delegate = delegate {
-      currentCurrency = delegate.currentCurrency
-      conversionRate = delegate.currentConversionRate
-    }
+    conversionButton.isHidden = attributeValueLabel.text == "unknown"
+    currentCurrency = (delegate?.defaults.currentCurrency)!
+    exchangeRate = (delegate?.defaults.exchangeRate)!
   }
   
   @IBAction func convertCurrency(_ sender: UIButton) {
@@ -111,7 +109,7 @@ class CostCell: UITableViewCell {
     guard amount > 0.0 else {
       throw CostCellError.invalidConversionRate(message: "Value must be greater than 0")
     }
-    conversionRate = amount
+    exchangeRate = amount
     if currentCurrency == .USDollars {
       switchToCurrency(.USDollars)
     }

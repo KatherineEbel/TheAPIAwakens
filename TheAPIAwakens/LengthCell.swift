@@ -15,14 +15,13 @@ enum MeasurementSystem: String {
 
 // LengthCellDelegate helps keep the cell's value in sync with user changes
 protocol LengthCellDelegate: class {
-  var currentMeasurementSystem: MeasurementSystem { get set }
+  var defaults: SWSettings { get set }
   func measurementSystemDidChange(for cell: LengthCell)
 }
 
 class LengthCell: UITableViewCell {
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
-  @IBOutlet weak var unitsLabel: UILabel!
   @IBOutlet weak var englishConversionButton: UIButton!
   @IBOutlet weak var metricConversionButton: UIButton!
   weak var delegate: LengthCellDelegate?
@@ -34,10 +33,16 @@ class LengthCell: UITableViewCell {
   
   
   @IBAction func toEnglishMeasurement() {
+    if attributeValueLabel.text == "unknown" {
+      return
+    }
     convertToMeasurementSystem(.english)
   }
   
   @IBAction func toMetricMeasurement() {
+    if attributeValueLabel.text == "unknown" {
+      return
+    }
     convertToMeasurementSystem(.metric)
   }
   
@@ -56,7 +61,6 @@ class LengthCell: UITableViewCell {
         englishConversionButton.isUserInteractionEnabled = false
         englishConversionButton.tintColor = UIColor.white
     }
-    unitsLabel.text = currentMeasurementSystem.rawValue
   }
   
   // switch measurement system to that of parameter, and adjust value label, 
@@ -68,9 +72,6 @@ class LengthCell: UITableViewCell {
         attributeValueLabel.text = (attributeValueLabel.text?.fromFeetToMeters())!
       case .english:
         currentMeasurementSystem = .english
-        if unitsLabel.text == MeasurementSystem.english.rawValue { // don't attempt to change units is measurement is already in ft
-          break
-        }
         attributeValueLabel.text? = (attributeValueLabel.text?.toFeetFromMeters())!
     }
     delegate?.measurementSystemDidChange(for: self)
@@ -82,7 +83,6 @@ class LengthCell: UITableViewCell {
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
     attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
-    unitsLabel.text = MeasurementSystem.english.rawValue
-    convertToMeasurementSystem(delegate!.currentMeasurementSystem)
+    convertToMeasurementSystem(delegate!.defaults.measurementSystem)
   }
 }

@@ -33,7 +33,23 @@ class HomeController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
+  func cancelDownloads() {
+    swapiClient.session.getAllTasks { tasks in
+      _ = tasks.map { $0.cancel() }
+    }
+  }
+  
+  func removeCancelButton() {
+    self.navigationItem.rightBarButtonItem = nil
+  }
+  
+  func addCancelRequestButton() {
+    let cancelButton = UIBarButtonItem.init(title: "Cancel", style: .plain, target: self, action: #selector(HomeController.cancelDownloads))
+    self.navigationItem.rightBarButtonItem = cancelButton
+  }
+  
   func fetch(_ endpoint: Endpoint, completion: @escaping (() -> ())) {
+    addCancelRequestButton()
     activateProgressSpinner()
     swapiClient.fetchPage(for: endpoint) { result in
       switch result {
@@ -41,6 +57,7 @@ class HomeController: UIViewController {
         case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
       }
       completion()
+      self.removeCancelButton()
     }
   }
   

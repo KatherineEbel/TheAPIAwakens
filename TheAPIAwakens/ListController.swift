@@ -22,9 +22,11 @@ class ListController: UIViewController {
     let entity = starwarsCollection[starwarsCollectionPicker.selectedRow(inComponent: 0)]
     return entity
   }
-  var currentConversionRate = 1.0
-  var currentCurrency = CurrencyUnit.GalacticCredits
-  var currentMeasurementSystem = MeasurementSystem.english
+  var defaults = SWAPIClient.sharedClient.defaults {
+    didSet {
+      SWAPIClient.sharedClient.defaults = self.defaults
+    }
+  }
   var isLoading = true
 
   override func viewDidLoad() {
@@ -115,7 +117,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-      tableView.rowHeight = 44.0
       return selectedEntity.propertyNames.count
     }
   
@@ -124,8 +125,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate {
     let attributeValue = selectedEntity.propertyValues[indexPath.row]
     if attributeName == .Cost {
       let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.CostCell.rawValue, for: indexPath) as! CostCell
-      cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       cell.delegate = self
+      cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     } else if attributeName == .Length || attributeName == .Height {
       let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.LengthCell.rawValue, for: indexPath) as! LengthCell
@@ -181,14 +182,14 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
 extension ListController: CostCellDelegate, LengthCellDelegate {
   
   func measurementSystemDidChange(for cell: LengthCell) {
-    currentMeasurementSystem = cell.currentMeasurementSystem
+    defaults.measurementSystem = cell.currentMeasurementSystem
   }
   func currencyUnitDidChange(for cell: CostCell) {
-    currentCurrency = cell.currentCurrency
+    defaults.currentCurrency = cell.currentCurrency
   }
   
-  func conversionRateDidChange(for cell: CostCell) {
-    currentConversionRate = cell.conversionRate
+  func exchangeRateDidChange(for cell: CostCell) {
+    defaults.exchangeRate = cell.exchangeRate
   }
   
   // presents user with an alert that has a textfield in which they can enter a new conversion rate

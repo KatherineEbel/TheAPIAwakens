@@ -8,10 +8,14 @@
 
 import Foundation
 
-public let KAENetworkingErrorDomain = "com.katherineebel.TheAPIAwakens.NetworkingError"
-
-public let MissingHTTPResponseError: Int = 10
-public let UnexpectedResponseError: Int = 20
+enum NetworkingError: Error {
+  case missingHTTPResponse(message: String)
+  case unableToParse(message: String)
+  case unexpectedResponse(message: String) // status code not handled
+  case resourceNotFound(message: String) // status code 404
+  case serviceUnavailable(message: String) // status code 503
+  case gatewayTimeout(message: String) // status code 504
+}
 
 protocol JSONDecodable {
   init?(JSON: [String : Any])
@@ -20,24 +24,10 @@ protocol JSONDecodable {
 protocol Endpoint {
   var baseURL: String { get }
   var path: String { get }
-  var parameters: [String: Any]? { get }
 }
 
 extension Endpoint {
-  var queryComponents: [URLQueryItem] {
-    var components = [URLQueryItem]()
-    if let params = parameters {
-      for (key, value) in params {
-        let queryItem = URLQueryItem(name: key, value: "\(value)")
-        components.append(queryItem)
-      }
-    }
-    return components
-  }
-  
   var request: URLRequest {
-    var components = URLComponents(string: baseURL)!
-    components.path = path
     let urlString = "\(baseURL)\(path)"
     let url = URL(string: urlString)!
     return URLRequest(url: url)
@@ -66,8 +56,7 @@ extension APIClient {
         let task = session.dataTask(with: request, completionHandler: { data, response, error in
             
             guard let HTTPResponse = response as? HTTPURLResponse else {
-                let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Missing HTTP Response, please check your connection.", comment: "")]
-                let error = NSError(domain: KAENetworkingErrorDomain, code: MissingHTTPResponseError, userInfo: userInfo)
+              let error = NetworkingError.missingHTTPResponse(message: "No response. Please check your internet connection") as NSError
                 completion(nil, nil, error)
                 return
             }
@@ -84,6 +73,15 @@ extension APIClient {
                     } catch let error as NSError {
                         completion(nil, HTTPResponse, error)
                     }
+                case 404:
+                  let error = NetworkingError.resourceNotFound(message: "Resource not found") as NSError
+                  completion(nil, HTTPResponse, error)
+                case 503:
+                  let error = NetworkingError.serviceUnavailable(message: "Please try again later. Service not currently available") as NSError
+                  completion(nil, HTTPResponse, error)
+                case 504:
+                  let error = NetworkingError.gatewayTimeout(message: "The request timed out. Please try again later") as NSError
+                  completion(nil, HTTPResponse, error)
                 default:
                     print("Received HTTP response: \(HTTPResponse.statusCode), which was not handled")
                 }
@@ -98,15 +96,13 @@ extension APIClient {
                 guard let json = json else {
                     if let error = error {
                         completion(.failure(error))
-                    } else {
-                        // TODO: Implement error handling
                     }
                     return
                 }
                 if let resource = parse(json) {
                     completion(.success(resource))
                 } else {
-                    let error = NSError(domain: KAENetworkingErrorDomain, code: UnexpectedResponseError, userInfo: nil)
+                  let error = NetworkingError.unableToParse(message: "Couldn't parse data")
                     completion(.failure(error))
                 }
             }
@@ -129,7 +125,7 @@ extension APIClient {
           if let resource = parse(json) {
               completion(.success(resource))
           } else {
-              let error = NSError(domain: KAENetworkingErrorDomain, code: UnexpectedResponseError, userInfo: nil)
+            let error = NetworkingError.unableToParse(message: "Couldn't parse data")
               completion(.failure(error))
           }
       }
