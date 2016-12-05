@@ -20,6 +20,7 @@ protocol StarWarsType {
   var name: String { get }
 }
 
+// Overall StarwarsEntity type allows for one variable to hold any collection of star wars entities
 enum StarWarsEntity: JSONDecodable {
   case person(Person)
   case vehicle(Vehicle)
@@ -34,6 +35,7 @@ enum StarWarsEntity: JSONDecodable {
     case hair_color
     case birth_year
     case vehicles
+    case starships
     case model
     case starship_class
     case vehicle_class
@@ -54,6 +56,8 @@ enum StarWarsEntity: JSONDecodable {
     case Length
     case Kind = "Type" // need to use different value since Type clashes with other properties
     case Crew
+    case Vehicles
+    case Starships
   }
   
   var entity: Any {
@@ -68,7 +72,7 @@ enum StarWarsEntity: JSONDecodable {
   var propertyNames: [PropertyNames] {
     switch self {
       case .person(_):
-        return [.Born, .Home, .Height, .Eyes, .Hair]
+        return [.Born, .Home, .Height, .Eyes, .Hair, .Vehicles, .Starships]
       case .vehicle, .starship:
         return [.Make, .Cost, .Length, .Kind, .Crew]
     }
@@ -77,7 +81,9 @@ enum StarWarsEntity: JSONDecodable {
   var propertyValues: [String] {
     switch self {
     case .person(let person):
-      return [person.born, person.home, person.height, person.eyes, person.hair]
+      let vehicles = person.vehicles.isEmpty ? "None" : person.vehicles.joined(separator: ",\n")
+      let starships = person.starships.isEmpty ? "None" : person.starships.joined(separator: ",\n")
+      return [person.born, person.home, person.height, person.eyes, person.hair, vehicles, starships]
     case .vehicle(let vehicle):
       return [vehicle.make, vehicle.cost, vehicle.length, vehicle.type, vehicle.crew]
     case .starship(let starShip):
@@ -92,7 +98,8 @@ enum StarWarsEntity: JSONDecodable {
     let height: String
     let eyes: String
     let hair: String
-    let vehicles: [String]?
+    var vehicles: [String]
+    var starships: [String]
   }
   
   struct Vehicle: Manned, StarWarsType {
@@ -143,8 +150,9 @@ extension StarWarsEntity.Person {
   init?(JSON: JSON) {
     let keys = StarWarsEntity.SWKeys.self
     if let name = JSON[keys.name.rawValue] as? String, let homeworld = JSON[keys.homeworld.rawValue] as? String, let height = JSON[keys.height.rawValue] as? String,
-      let eyes = JSON[keys.eye_color.rawValue] as? String, let hair = JSON[keys.hair_color.rawValue] as? String, let vehicles = JSON[keys.vehicles.rawValue] as? [String],
+      let eyes = JSON[keys.eye_color.rawValue] as? String, let hair = JSON[keys.hair_color.rawValue] as? String, let vehicles = JSON[keys.vehicles.rawValue] as? [String], let starships = JSON[keys.starships.rawValue] as? [String],
       let birthYear = JSON[keys.birth_year.rawValue] as? String {
+      
       self.name = name
       self.home = homeworld
       self.born = birthYear.uppercased()
@@ -152,6 +160,7 @@ extension StarWarsEntity.Person {
       self.eyes = eyes.capitalized
       self.hair = hair.capitalized
       self.vehicles = vehicles
+      self.starships = starships
     } else {
       return nil
     }

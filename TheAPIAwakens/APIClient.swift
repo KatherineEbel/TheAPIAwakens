@@ -117,8 +117,6 @@ extension APIClient {
           guard let json = json else {
               if let error = error {
                   completion(.failure(error))
-              } else {
-                  // TODO: Implement error handling
               }
               return
           }

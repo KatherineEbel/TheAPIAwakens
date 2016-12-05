@@ -61,16 +61,22 @@ class HomeController: UIViewController {
     }
   }
   
+  
   @IBAction func fetchCharacters(_ sender: UIButton) {
     fetch(SWAPI.characters) {
+      let properties: [StarWarsEntity.PropertyNames] = [.Home, .Vehicles, .Starships]
       let entities = self.starwarsCollection.map { $0.entity as! StarWarsEntity.Person }
-      self.swapiClient.getPlanetNames(for: entities) { result in
-        self.deactivateProgressSpinner()
-        switch result {
-          case .success(let updatedEntities):
-            self.starwarsCollection = updatedEntities
-            self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
-          case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+      for property in properties {
+        self.swapiClient.update(property: property, for: entities) { result in
+          switch result {
+            case .success(let updatedEntities):
+              self.starwarsCollection = self.swapiClient.updatePropertyForCollection(property: property, oldValues: self.starwarsCollection, newValues: updatedEntities)
+              if property == properties.last! {
+                self.deactivateProgressSpinner()
+                self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: nil)
+              }
+            case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+          }
         }
       }
     }

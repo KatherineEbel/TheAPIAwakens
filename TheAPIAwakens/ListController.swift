@@ -18,6 +18,7 @@ class ListController: UIViewController {
   @IBOutlet weak var largestNameLabel: UILabel!
   
   var starwarsCollection: [StarWarsEntity] = []
+  var partialCollection = [StarWarsEntity]()
   var selectedEntity: StarWarsEntity! {
     let entity = starwarsCollection[starwarsCollectionPicker.selectedRow(inComponent: 0)]
     return entity
@@ -32,6 +33,8 @@ class ListController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setNavTitle()
+    tableView.rowHeight = UITableViewAutomaticDimension
+    tableView.estimatedRowHeight = 60
     updateSmallAndLargeLabels()
     selectedEntityName.text = (selectedEntity.entity as! StarWarsType).name
     getNextGroup()
@@ -44,12 +47,23 @@ class ListController: UIViewController {
         switch result {
           case .success(let entities):
             if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
-              client.getPlanetNames(for: characters) { result in
-                switch result {
-                  case .success(let updatedCharacters):
-                    self.starwarsCollection.append(contentsOf: updatedCharacters)
-                    self.starwarsCollectionPicker.reloadAllComponents()
-                  case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+              let properties: [StarWarsEntity.PropertyNames] = [.Home, .Vehicles, .Starships]
+              for property in properties {
+                client.update(property: property, for: characters) { result in
+                  switch result {
+                    case .success(let updatedEntities):
+                      if property == properties.first {
+                        self.partialCollection = entities
+                      }
+                      self.partialCollection = client.updatePropertyForCollection(property: property, oldValues: self.partialCollection, newValues: updatedEntities)
+                      
+                      if property == properties.last {
+                        self.starwarsCollection.append(contentsOf: self.partialCollection)
+                        self.partialCollection.removeAll()
+                        self.starwarsCollectionPicker.reloadAllComponents()
+                      }
+                    case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+                  }
                 }
               }
             } else {
