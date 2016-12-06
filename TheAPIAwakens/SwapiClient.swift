@@ -12,6 +12,16 @@ enum SWAPIClientError: Error {
   case unsuccessfulRequest(message: String)
 }
 
+
+extension SWAPIClientError: LocalizedError {
+  public var errorDescription: String {
+    switch self {
+      case .unsuccessfulRequest(message: let message):
+        return NSLocalizedString(message, comment: "Incorrect Key")
+    }
+  }
+}
+
 enum SWAPI: Endpoint {
   case characters
   case vehicles
@@ -107,7 +117,7 @@ final class SWAPIClient: APIClient {
   
   // fetches an individual property for an array of Characters
   func update(property name: StarWarsEntity.PropertyNames, for characters: [StarWarsEntity.Person], completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
-    var error = SWAPIClientError.unsuccessfulRequest(message: "None")
+    var error: Error?
     var updatedCharacters = characters
     let URLs = extract(property: name, from: characters)
     // iterate through the list of url's for properties and submit a request for each one
@@ -116,7 +126,6 @@ final class SWAPIClient: APIClient {
       fetch(endpoint: SWAPI.property(URL), parse: { (json) -> [StarWarsEntity.Person]? in
         self.dispatchGroup.leave()
         guard let newName = json[SWAPI.SWKeys.name.rawValue] as? String else {
-          error = SWAPIClientError.unsuccessfulRequest(message: "Unable to find \(name.rawValue)")
           return nil
         }
         // update the passed in characters that have the property that matches the one being searched
@@ -125,17 +134,21 @@ final class SWAPIClient: APIClient {
         switch result {
           case .success(let updated):
             updatedCharacters = updated
-          case .failure(let partialError): error = SWAPIClientError.unsuccessfulRequest(message: partialError.localizedDescription)
+          case .failure(let partialError):
+            if let networkError = partialError as? NetworkingError {
+              error = SWAPIClientError.unsuccessfulRequest(message: "\(networkError.errorDescription). Unable to fetch \(name.rawValue) resource")
+            } else {
+              error = partialError
+            }
         }
       })
     }
     dispatchGroup.notify(queue: .main) {
       // updated characters should always match number of passed in characters
-      if updatedCharacters.count == characters.count {
-        completion(APIResult.success(updatedCharacters.map { StarWarsEntity.person($0) }))
-      } else {
-        error = SWAPIClientError.unsuccessfulRequest(message: "Error fetching \(name.rawValue) for all characters")
+      if let error = error {
         completion(APIResult.failure(error))
+      } else {
+        completion(APIResult.success(updatedCharacters.map { StarWarsEntity.person($0) }))
       }
     }
   }

@@ -32,14 +32,14 @@ class MeasurementCell: UITableViewCell {
   }
   
   @IBAction func toEnglishMeasurement() {
-    if attributeValueLabel.text == "unknown" {
+    if attributeValueLabel.text?.lowercased() == "unknown" {
       return
     }
     convertToMeasurementSystem(.english)
   }
   
   @IBAction func toMetricMeasurement() {
-    if attributeValueLabel.text == "unknown" {
+    if attributeValueLabel.text?.lowercased() == "unknown" {
       return
     }
     convertToMeasurementSystem(.metric)
@@ -81,7 +81,7 @@ class MeasurementCell: UITableViewCell {
   // view controller passes in attribute values in cell for row at indexPath
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
+    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2).capitalized
     convertToMeasurementSystem(delegate!.defaults.measurementSystem)
   }
 }

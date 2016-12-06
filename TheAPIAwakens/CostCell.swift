@@ -78,7 +78,7 @@ class CostCell: UITableViewCell {
   // sets up the cell's initial state -- called by ListController
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
+    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2).capitalized
     conversionButton.isHidden = attributeValueLabel.text == "unknown"
     currentCurrency = (delegate?.defaults.currentCurrency)!
     exchangeRate = (delegate?.defaults.exchangeRate)!

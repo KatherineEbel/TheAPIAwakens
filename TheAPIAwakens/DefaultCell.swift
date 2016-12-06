@@ -20,7 +20,7 @@ class DefaultCell: UITableViewCell {
   
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value.lowercased() == "unknown" ? value.lowercased() : value
+    attributeValueLabel.text = value.lowercased() == "unknown" ? value.capitalized : value
   }
 
 }

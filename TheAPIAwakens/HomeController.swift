@@ -81,7 +81,11 @@ class HomeController: UIViewController {
                 self.deactivateProgressSpinner()
                 self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: nil)
               }
-            case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+            case .failure(let error):
+              if let clientError = error as? SWAPIClientError {
+                self.deactivateProgressSpinner()
+                self.alertForErrorMessage(clientError.errorDescription)
+              }
           }
         }
       }

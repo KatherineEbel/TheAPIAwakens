@@ -18,7 +18,7 @@ enum NetworkingError: Error {
 }
 
 extension NetworkingError: LocalizedError {
-  public var errorDescription: String? {
+  public var errorDescription: String {
     switch self {
       case .missingHTTPResponse(message: let message):
         return NSLocalizedString(message, comment: message)
