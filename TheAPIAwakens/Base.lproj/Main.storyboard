@@ -36,17 +36,17 @@
                                     <constraint firstAttribute="height" constant="2" id="LSb-6W-800"/>
                                 </constraints>
                             </view>
-                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uVO-Wt-8uD">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uVO-Wt-8uD">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="A1z-09-Tbf" userLabel="Characters StackView">
                                         <rect key="frame" x="129" y="0.0" width="117.5" height="201"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pUu-V2-iIB">
-                                                <rect key="frame" x="8.5" y="0.0" width="100" height="100"/>
+                                                <rect key="frame" x="8.5" y="0.0" width="100" height="110"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="100" id="BWe-Q2-oRu"/>
-                                                    <constraint firstAttribute="height" constant="100" id="a22-cP-3TB"/>
+                                                    <constraint firstAttribute="height" constant="110" id="a22-cP-3TB"/>
                                                 </constraints>
                                                 <state key="normal" backgroundImage="icon-characters"/>
                                                 <connections>
@@ -54,7 +54,7 @@
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Characters" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ttq-CH-iys">
-                                                <rect key="frame" x="0.0" y="100" width="117.5" height="101"/>
+                                                <rect key="frame" x="0.0" y="110" width="117.5" height="91"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                                 <color key="textColor" red="0.47843137254901957" green="0.80784313725490198" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -65,10 +65,10 @@
                                         <rect key="frame" x="137.5" y="201" width="100" height="201"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="740" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jji-Wq-u2A">
-                                                <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="100" height="110"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="100" id="TXw-cK-wMO"/>
-                                                    <constraint firstAttribute="height" constant="100" id="eNG-iK-e9U"/>
+                                                    <constraint firstAttribute="height" constant="110" id="eNG-iK-e9U"/>
                                                 </constraints>
                                                 <state key="normal" backgroundImage="icon-vehicles"/>
                                                 <connections>
@@ -76,7 +76,7 @@
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Vehicles" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="skO-dG-3ql">
-                                                <rect key="frame" x="5.5" y="100" width="89.5" height="101"/>
+                                                <rect key="frame" x="5.5" y="110" width="89.5" height="91"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                                 <color key="textColor" red="0.47843137250000001" green="0.80784313730000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -87,9 +87,9 @@
                                         <rect key="frame" x="137.5" y="402" width="100.5" height="201"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="740" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wna-Bh-pCR">
-                                                <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="100" height="110"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="100" id="cmH-Kf-XVl"/>
+                                                    <constraint firstAttribute="height" constant="110" id="cmH-Kf-XVl"/>
                                                     <constraint firstAttribute="width" constant="100" id="xlp-2D-CTb"/>
                                                 </constraints>
                                                 <state key="normal" backgroundImage="icon-starships"/>
@@ -98,7 +98,7 @@
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Starships" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sFi-1Y-EvS">
-                                                <rect key="frame" x="0.0" y="100" width="100.5" height="101"/>
+                                                <rect key="frame" x="0.0" y="110" width="100.5" height="91"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                                 <color key="textColor" red="0.47843137250000001" green="0.80784313730000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
