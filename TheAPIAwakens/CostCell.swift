@@ -8,15 +8,18 @@
 
 import UIKit
 
+// MARK: CostCellError
 enum CostCellError: Error {
   case invalidConversionRate(message: String)
 }
 
+// MARK: CurrencyUnit enum
 enum CurrencyUnit {
   case USDollars
   case GalacticCredits
 }
 
+// MARK: CostCellDelegate Protocol
 protocol CostCellDelegate: class {
   var defaults: SWSettings { get set }
   func shouldChangeConversionRate(for cell: CostCell)
@@ -24,9 +27,8 @@ protocol CostCellDelegate: class {
   func exchangeRateDidChange(for cell: CostCell)
 }
 
+// MARK: CostCell Class
 class CostCell: UITableViewCell {
-  
-  
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
   @IBOutlet weak var conversionButton: UIButton!
@@ -53,6 +55,7 @@ class CostCell: UITableViewCell {
       // Initialization code
   }
 
+  // MARK: Helper methods
   func convertToUSDollars() {
     guard let galacticCredits = Double(attributeValueLabel.text!) else {
       // won't attempt to change if value cannot be converted to a number such as
@@ -84,20 +87,6 @@ class CostCell: UITableViewCell {
     exchangeRate = (delegate?.defaults.exchangeRate)!
   }
   
-  @IBAction func convertCurrency(_ sender: UIButton) {
-    switch currentCurrency {
-      case .GalacticCredits: switchToCurrency(.USDollars)
-      case .USDollars: switchToCurrency(.GalacticCredits)
-    }
-  }
-  
-  @IBAction func changeConversionRate() {
-    // tells the delegate that the user wants to change the rate
-    if let delegate = delegate {
-      delegate.shouldChangeConversionRate(for: self)
-    }
-  }
-  
   func switchToCurrency(_ currency: CurrencyUnit) {
     switch currency {
       case .GalacticCredits: convertToGalacticCredits()
@@ -116,6 +105,21 @@ class CostCell: UITableViewCell {
     if currentCurrency == .USDollars {
       // immediately update price if user is already viewing amounts in USD
       switchToCurrency(.USDollars)
+    }
+  }
+  
+  // MARK: IBActions
+  @IBAction func convertCurrency(_ sender: UIButton) {
+    switch currentCurrency {
+      case .GalacticCredits: switchToCurrency(.USDollars)
+      case .USDollars: switchToCurrency(.GalacticCredits)
+    }
+  }
+  
+  @IBAction func changeConversionRate() {
+    // tells the delegate that the user wants to change the rate
+    if let delegate = delegate {
+      delegate.shouldChangeConversionRate(for: self)
     }
   }
 }

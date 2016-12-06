@@ -15,7 +15,6 @@ class DefaultCell: UITableViewCell {
   
   override func awakeFromNib() {
       super.awakeFromNib()
-      // Initialization code
   }
   
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {

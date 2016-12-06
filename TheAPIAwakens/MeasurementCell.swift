@@ -8,17 +8,20 @@
 
 import UIKit
 
+// MARK: MeasurementSystem enum
 enum MeasurementSystem: String {
   case english = "ft"
   case metric = "m"
 }
 
+// MARK: MeasurementCell Delegate protocol
 // LengthCellDelegate helps keep the cell's value in sync with user changes
 protocol MeasurementCellDelegate: class {
   var defaults: SWSettings { get set }
   func measurementSystemDidChange(for cell: MeasurementCell)
 }
 
+// MARK: MeasurementCell Class def
 class MeasurementCell: UITableViewCell {
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
@@ -31,20 +34,7 @@ class MeasurementCell: UITableViewCell {
     super.awakeFromNib()
   }
   
-  @IBAction func toEnglishMeasurement() {
-    if attributeValueLabel.text?.lowercased() == "unknown" {
-      return
-    }
-    convertToMeasurementSystem(.english)
-  }
-  
-  @IBAction func toMetricMeasurement() {
-    if attributeValueLabel.text?.lowercased() == "unknown" {
-      return
-    }
-    convertToMeasurementSystem(.metric)
-  }
-  
+  // MARK: Helper methods
   // sets button an label properties to match user's preference
   // chosen measurement system button is white, and disabled to avoid converting value multiple times in a row
   func configureCellForCurrentMeasurementSystem() {
@@ -84,4 +74,21 @@ class MeasurementCell: UITableViewCell {
     attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2).capitalized
     convertToMeasurementSystem(delegate!.defaults.measurementSystem)
   }
+  
+  // MARK: IBActions
+  @IBAction func toEnglishMeasurement() {
+    // don't convert if not a number
+    if attributeValueLabel.text?.lowercased() == "unknown" {
+      return
+    }
+    convertToMeasurementSystem(.english)
+  }
+  
+  @IBAction func toMetricMeasurement() {
+    if attributeValueLabel.text?.lowercased() == "unknown" {
+      return
+    }
+    convertToMeasurementSystem(.metric)
+  }
+  
 }

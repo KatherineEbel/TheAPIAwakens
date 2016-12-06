@@ -40,7 +40,6 @@
 		44EEB9FC1DE3679B00F40DD6 /* SwapiTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwapiTypes.swift; sourceTree = "<group>"; };
 		44EEB9FE1DE3697A00F40DD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		44EEBA001DE36AA700F40DD6 /* SwapiClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwapiClient.swift; sourceTree = "<group>"; };
-		44EEBA021DE3811D00F40DD6 /* Testing.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Testing.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +53,42 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		446C72811DF7268000ED55CE /* Helper Functions */ = {
+			isa = PBXGroup;
+			children = (
+				446C727B1DEE3F1F00ED55CE /* StringExtension.swift */,
+			);
+			name = "Helper Functions";
+			sourceTree = "<group>";
+		};
+		446C72821DF726A000ED55CE /* Storyboards */ = {
+			isa = PBXGroup;
+			children = (
+				44EEB9EE1DE3611B00F40DD6 /* Main.storyboard */,
+				44EEB9F31DE3611B00F40DD6 /* LaunchScreen.storyboard */,
+			);
+			name = Storyboards;
+			sourceTree = "<group>";
+		};
+		446C72831DF726C300ED55CE /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				44EEB9FE1DE3697A00F40DD6 /* APIClient.swift */,
+				44EEBA001DE36AA700F40DD6 /* SwapiClient.swift */,
+				44EEB9FC1DE3679B00F40DD6 /* SwapiTypes.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		446C72841DF726F200ED55CE /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				44EEB9EA1DE3611B00F40DD6 /* AppDelegate.swift */,
+				44EEB9F61DE3611B00F40DD6 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		44B6B4801DEDBD5700477D5B /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -78,8 +113,8 @@
 			isa = PBXGroup;
 			children = (
 				446C727F1DF621FC00ED55CE /* Assets.xcassets */,
-				44EEB9E91DE3611B00F40DD6 /* TheAPIAwakens */,
 				44EEB9E81DE3611B00F40DD6 /* Products */,
+				44EEB9E91DE3611B00F40DD6 /* TheAPIAwakens */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,17 +129,12 @@
 		44EEB9E91DE3611B00F40DD6 /* TheAPIAwakens */ = {
 			isa = PBXGroup;
 			children = (
-				44EEB9EA1DE3611B00F40DD6 /* AppDelegate.swift */,
+				446C72841DF726F200ED55CE /* Supporting Files */,
 				44B6B4801DEDBD5700477D5B /* Controllers */,
-				44EEB9EE1DE3611B00F40DD6 /* Main.storyboard */,
-				44EEB9F31DE3611B00F40DD6 /* LaunchScreen.storyboard */,
-				44EEB9F61DE3611B00F40DD6 /* Info.plist */,
-				44EEB9FC1DE3679B00F40DD6 /* SwapiTypes.swift */,
-				44EEB9FE1DE3697A00F40DD6 /* APIClient.swift */,
-				44EEBA001DE36AA700F40DD6 /* SwapiClient.swift */,
-				44EEBA021DE3811D00F40DD6 /* Testing.playground */,
+				446C72821DF726A000ED55CE /* Storyboards */,
+				446C72831DF726C300ED55CE /* Model */,
 				44B6B4811DEDC2C000477D5B /* Views */,
-				446C727B1DEE3F1F00ED55CE /* StringExtension.swift */,
+				446C72811DF7268000ED55CE /* Helper Functions */,
 			);
 			path = TheAPIAwakens;
 			sourceTree = "<group>";
