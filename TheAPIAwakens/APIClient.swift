@@ -75,7 +75,7 @@ extension APIClient {
         let task = session.dataTask(with: request, completionHandler: { data, response, error in
             
             guard let HTTPResponse = response as? HTTPURLResponse else {
-              let error = NetworkingError.missingHTTPResponse(message: "No response. Please check your internet connection")
+              let error = NetworkingError.missingHTTPResponse(message: "No response. Request canceled, or no internet connection.")
                 completion(nil, nil, error)
                 return
             }

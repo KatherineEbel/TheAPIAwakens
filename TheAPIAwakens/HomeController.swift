@@ -35,6 +35,7 @@ class HomeController: UIViewController {
   
   // will cancel downloads in progress
   func cancelDownloads() {
+    starwarsCollection = []
     swapiClient.session.getAllTasks { tasks in
       _ = tasks.map { $0.cancel() }
     }
@@ -64,8 +65,8 @@ class HomeController: UIViewController {
   }
   func handle(_ error: Error) {
     deactivateProgressSpinner()
-    if error is NetworkingError {
-      self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
+    if let networkingError = error as? NetworkingError {
+      self.alertForErrorMessage(networkingError.errorDescription)
     } else {
       self.alertForErrorMessage(error.localizedDescription)
     }

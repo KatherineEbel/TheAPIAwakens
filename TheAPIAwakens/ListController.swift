@@ -126,8 +126,8 @@ class ListController: UIViewController {
   
   // MARK: Error handling
   func handleError(_ error: Error) {
-    if error is NetworkingError {
-      self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
+    if let networkingError = error as? NetworkingError {
+      self.alertForErrorMessage(networkingError.errorDescription)
     } else {
       self.alertForErrorMessage(error.localizedDescription)
     }

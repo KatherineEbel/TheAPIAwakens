@@ -12,7 +12,6 @@ enum SWAPIClientError: Error {
   case unsuccessfulRequest(message: String)
 }
 
-
 extension SWAPIClientError: LocalizedError {
   public var errorDescription: String {
     switch self {

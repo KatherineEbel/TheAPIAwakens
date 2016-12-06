@@ -71,7 +71,7 @@ class MeasurementCell: UITableViewCell {
   // view controller passes in attribute values in cell for row at indexPath
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
-    attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2).capitalized
+    attributeValueLabel.text = value.lowercased() == "unknown" ? value.capitalized : value.roundToPlaces(decimalPlaces: 2)
     convertToMeasurementSystem(delegate!.defaults.measurementSystem)
   }
   
