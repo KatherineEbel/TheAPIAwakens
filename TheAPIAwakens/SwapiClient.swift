@@ -21,9 +21,29 @@ enum SWAPI: Endpoint {
   
   enum SWPath: String {
     case base = "http://swapi.co/api/"
+    case planets
     case people
     case vehicles
     case starships
+  }
+  // SWAPI keys
+  enum SWKeys: String {
+    case results
+    case next
+    case name
+    case homeworld
+    case height
+    case eye_color
+    case hair_color
+    case birth_year
+    case vehicles
+    case starships
+    case model
+    case starship_class
+    case vehicle_class
+    case crew
+    case cost_in_credits
+    case length
   }
   
   var baseURL: String {
@@ -73,10 +93,10 @@ final class SWAPIClient: APIClient {
   // client can be queried for a nil nextPage property to know if it has more pages to fetch.
   func fetchPage(for endpoint: Endpoint, completion: @escaping (APIResult<[StarWarsEntity]>) -> Void) {
     fetch(endpoint: endpoint, parse: { (json) -> [StarWarsEntity]? in
-      guard let results = json["results"] as? [[String: Any]] else {
+      guard let results = json[SWAPI.SWKeys.results.rawValue] as? [[String: Any]] else {
         return nil
       }
-      if let next = json["next"] as? String {
+      if let next = json[SWAPI.SWKeys.next.rawValue] as? String {
         self.nextPage = SWAPI.nextPage(next)
       } else {
         self.nextPage = nil
@@ -95,7 +115,7 @@ final class SWAPIClient: APIClient {
       dispatchGroup.enter()
       fetch(endpoint: SWAPI.property(URL), parse: { (json) -> [StarWarsEntity.Person]? in
         self.dispatchGroup.leave()
-        guard let newName = json[StarWarsEntity.SWKeys.name.rawValue] as? String else {
+        guard let newName = json[SWAPI.SWKeys.name.rawValue] as? String else {
           error = SWAPIClientError.unsuccessfulRequest(message: "Unable to find \(name.rawValue)")
           return nil
         }
@@ -122,22 +142,22 @@ final class SWAPIClient: APIClient {
   
   // filters all the people in param 1 that have a value of param 2 and replaces with param 3
   func updateProperty(for people: [StarWarsEntity.Person], oldName old: String, newName new: String) -> [StarWarsEntity.Person] {
-    let newValues = people.enumerated().map { (index, person) -> StarWarsEntity.Person in
+    let newValues = people.map { (person) -> StarWarsEntity.Person in
       var mutablePerson = person
       switch old {
-        case let url where url.contains("planets"):
+        case let url where url.contains(SWAPI.SWPath.planets.rawValue):
           if mutablePerson.home == old {
             mutablePerson.home = new
           } else {
             return person
           }
-        case let url where url.contains(StarWarsEntity.SWKeys.vehicles.rawValue):
+        case let url where url.contains(SWAPI.SWKeys.vehicles.rawValue):
           if let index = mutablePerson.vehicles.index(of: old) {
             mutablePerson.vehicles[index] = new
           } else {
             return person
           }
-        case let url where url.contains(StarWarsEntity.SWKeys.starships.rawValue):
+        case let url where url.contains(SWAPI.SWKeys.starships.rawValue):
           if let index = mutablePerson.starships.index(of: old) {
             mutablePerson.starships[index] = new
           } else {

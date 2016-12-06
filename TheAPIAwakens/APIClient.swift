@@ -17,6 +17,25 @@ enum NetworkingError: Error {
   case gatewayTimeout(message: String) // status code 504
 }
 
+extension NetworkingError: LocalizedError {
+  public var errorDescription: String? {
+    switch self {
+      case .missingHTTPResponse(message: let message):
+        return NSLocalizedString(message, comment: message)
+      case .unableToParse(message: let message):
+        return NSLocalizedString(message, comment: message)
+      case .unexpectedResponse(message: let message):
+        return NSLocalizedString(message, comment: message)
+      case .resourceNotFound(message: let message):
+        return NSLocalizedString(message, comment: message)
+      case .serviceUnavailable(message: let message):
+        return NSLocalizedString(message, comment: message)
+      case .gatewayTimeout(message: let message):
+        return NSLocalizedString(message, comment: message)
+    }
+  }
+}
+
 protocol JSONDecodable {
   init?(JSON: [String : Any])
 }
@@ -35,7 +54,7 @@ extension Endpoint {
 }
 
 typealias JSON = [String: Any]
-typealias JSONCompletion = (JSON?, HTTPURLResponse?, NSError?) -> Void
+typealias JSONCompletion = (JSON?, HTTPURLResponse?, NetworkingError?) -> Void
 typealias JSONTask = URLSessionDataTask
 
 enum APIResult<T> {
@@ -56,13 +75,13 @@ extension APIClient {
         let task = session.dataTask(with: request, completionHandler: { data, response, error in
             
             guard let HTTPResponse = response as? HTTPURLResponse else {
-              let error = NetworkingError.missingHTTPResponse(message: "No response. Please check your internet connection") as NSError
+              let error = NetworkingError.missingHTTPResponse(message: "No response. Please check your internet connection")
                 completion(nil, nil, error)
                 return
             }
             if data == nil {
-                if let error = error {
-                    completion(nil, HTTPResponse, error as NSError?)
+                if let error = error as? NetworkingError {
+                    completion(nil, HTTPResponse, error)
                 }
             } else {
                 switch HTTPResponse.statusCode {
@@ -70,20 +89,21 @@ extension APIClient {
                     do {
                         let json = try JSONSerialization.jsonObject(with: data!, options: []) as? [String : Any]
                         completion(json, HTTPResponse, nil)
-                    } catch let error as NSError {
-                        completion(nil, HTTPResponse, error)
+                    } catch let error {
+                        completion(nil, HTTPResponse, error as? NetworkingError)
                     }
                 case 404:
-                  let error = NetworkingError.resourceNotFound(message: "Resource not found") as NSError
+                  let error = NetworkingError.resourceNotFound(message: "Resource not found")
                   completion(nil, HTTPResponse, error)
                 case 503:
-                  let error = NetworkingError.serviceUnavailable(message: "Please try again later. Service not currently available") as NSError
+                  let error = NetworkingError.serviceUnavailable(message: "Please try again later. Service not currently available")
                   completion(nil, HTTPResponse, error)
                 case 504:
-                  let error = NetworkingError.gatewayTimeout(message: "The request timed out. Please try again later") as NSError
+                  let error = NetworkingError.gatewayTimeout(message: "The request timed out. Please try again later")
                   completion(nil, HTTPResponse, error)
                 default:
-                    print("Received HTTP response: \(HTTPResponse.statusCode), which was not handled")
+                  let error = NetworkingError.unexpectedResponse(message: "Received HTTP response: \(HTTPResponse.statusCode), which was not handled")
+                  completion(nil, HTTPResponse, error)
                 }
             }
         }) 

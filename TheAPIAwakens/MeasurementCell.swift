@@ -14,23 +14,22 @@ enum MeasurementSystem: String {
 }
 
 // LengthCellDelegate helps keep the cell's value in sync with user changes
-protocol LengthCellDelegate: class {
+protocol MeasurementCellDelegate: class {
   var defaults: SWSettings { get set }
-  func measurementSystemDidChange(for cell: LengthCell)
+  func measurementSystemDidChange(for cell: MeasurementCell)
 }
 
-class LengthCell: UITableViewCell {
+class MeasurementCell: UITableViewCell {
   @IBOutlet weak var attributeNameLabel: UILabel!
   @IBOutlet weak var attributeValueLabel: UILabel!
   @IBOutlet weak var englishConversionButton: UIButton!
   @IBOutlet weak var metricConversionButton: UIButton!
-  weak var delegate: LengthCellDelegate?
+  weak var delegate: MeasurementCellDelegate?
   var currentMeasurementSystem = MeasurementSystem.english
   
   override func awakeFromNib() {
     super.awakeFromNib()
   }
-  
   
   @IBAction func toEnglishMeasurement() {
     if attributeValueLabel.text == "unknown" {

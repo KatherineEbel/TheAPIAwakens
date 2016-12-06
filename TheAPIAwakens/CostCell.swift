@@ -32,6 +32,7 @@ class CostCell: UITableViewCell {
   @IBOutlet weak var conversionButton: UIButton!
   weak var delegate: CostCellDelegate?
   var exchangeRate = 1.0 {
+    // every time the exchange rate changes, notify the delegate
     didSet {
       if let delegate = delegate {
         delegate.exchangeRateDidChange(for: self)
@@ -39,6 +40,7 @@ class CostCell: UITableViewCell {
     }
   }
   var currentCurrency = CurrencyUnit.GalacticCredits {
+    // every time the currency changes, notify the delegate
     didSet {
       if let delegate = delegate {
         delegate.currencyUnitDidChange(for: self)
@@ -46,18 +48,19 @@ class CostCell: UITableViewCell {
     }
   }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
+  override func awakeFromNib() {
+      super.awakeFromNib()
+      // Initialization code
+  }
 
   func convertToUSDollars() {
     guard let galacticCredits = Double(attributeValueLabel.text!) else {
+      // won't attempt to change if value cannot be converted to a number such as
+      // "unknown" values
       return
     }
     currentCurrency = .USDollars
-    conversionButton.setBackgroundImage(nil, for: .normal)
-    conversionButton.setTitle("$", for: .normal)
+    conversionButton.setTitle("USD", for: .normal)
     let rounded = String(galacticCredits * exchangeRate).roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = rounded
   }
@@ -67,13 +70,12 @@ class CostCell: UITableViewCell {
       return
     }
     currentCurrency = .GalacticCredits
-    let image = UIImage(named: "GalacticCredit")
-    conversionButton.setBackgroundImage(image, for: .normal)
-    conversionButton.setTitle("", for: .normal)
+    conversionButton.setTitle("Credits", for: .normal)
     let rounded = String(dollars / exchangeRate).roundToPlaces(decimalPlaces: 2)
     attributeValueLabel.text = rounded
   }
   
+  // sets up the cell's initial state -- called by ListController
   func configure(withAttributeName name: StarWarsEntity.PropertyNames, andValue value: String) {
     attributeNameLabel.text = name.rawValue
     attributeValueLabel.text = value.roundToPlaces(decimalPlaces: 2)
@@ -90,6 +92,7 @@ class CostCell: UITableViewCell {
   }
   
   @IBAction func changeConversionRate() {
+    // tells the delegate that the user wants to change the rate
     if let delegate = delegate {
       delegate.shouldChangeConversionRate(for: self)
     }
@@ -111,6 +114,7 @@ class CostCell: UITableViewCell {
     }
     exchangeRate = amount
     if currentCurrency == .USDollars {
+      // immediately update price if user is already viewing amounts in USD
       switchToCurrency(.USDollars)
     }
   }

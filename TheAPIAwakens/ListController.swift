@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum ListControllerNavTitles: String {
+  case Characters
+  case Vehicles
+  case Starships
+}
 
 class ListController: UIViewController {
   
@@ -40,6 +45,29 @@ class ListController: UIViewController {
     getNextGroup()
   }
   
+  func fetchCharacterProperties(for characters: [StarWarsEntity.Person]) {
+    let client = SWAPIClient.sharedClient
+    let properties: [StarWarsEntity.PropertyNames] = [.Home, .Vehicles, .Starships]
+    for property in properties {
+      client.update(property: property, for: characters) { result in
+        switch result {
+          case .success(let updatedEntities):
+            if property == properties.first {
+              self.partialCollection = characters.map { StarWarsEntity.person($0) }
+            }
+            // pass in the partialCollection as old values to update the newly fetched property
+            self.partialCollection = client.updatePropertyForCollection(property: property, oldValues: self.partialCollection, newValues: updatedEntities)
+            if property == properties.last {
+              // add the current partial collection to the starwarsCollection
+              self.starwarsCollection.append(contentsOf: self.partialCollection)
+              self.starwarsCollectionPicker.reloadAllComponents()
+            }
+          case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+        }
+      }
+    }
+  }
+  
   func getNextGroup() {
     let client = SWAPIClient.sharedClient
     if let nextPage = client.nextPage {
@@ -47,25 +75,7 @@ class ListController: UIViewController {
         switch result {
           case .success(let entities):
             if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
-              let properties: [StarWarsEntity.PropertyNames] = [.Home, .Vehicles, .Starships]
-              for property in properties {
-                client.update(property: property, for: characters) { result in
-                  switch result {
-                    case .success(let updatedEntities):
-                      if property == properties.first {
-                        self.partialCollection = entities
-                      }
-                      self.partialCollection = client.updatePropertyForCollection(property: property, oldValues: self.partialCollection, newValues: updatedEntities)
-                      
-                      if property == properties.last {
-                        self.starwarsCollection.append(contentsOf: self.partialCollection)
-                        self.partialCollection.removeAll()
-                        self.starwarsCollectionPicker.reloadAllComponents()
-                      }
-                    case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
-                  }
-                }
-              }
+              self.fetchCharacterProperties(for: characters)
             } else {
               self.starwarsCollection.append(contentsOf: entities)
               self.starwarsCollectionPicker.reloadAllComponents()
@@ -88,16 +98,15 @@ class ListController: UIViewController {
   
   override func didReceiveMemoryWarning() {
       super.didReceiveMemoryWarning()
-      // Dispose of any resources that can be recreated.
   }
 
   func setNavTitle() {
     if let _ = selectedEntity.entity as? StarWarsEntity.Person {
-      self.navigationItem.title = "Characters"
+      self.navigationItem.title = ListControllerNavTitles.Characters.rawValue
     } else if let _ =  selectedEntity.entity as? StarWarsEntity.Vehicle {
-      self.navigationItem.title = "Vehicles"
+      self.navigationItem.title = ListControllerNavTitles.Vehicles.rawValue
     } else if let _ = selectedEntity.entity as? StarWarsEntity.Starship {
-      self.navigationItem.title = "Starships"
+      self.navigationItem.title = ListControllerNavTitles.Starships.rawValue
     }
   }
   
@@ -143,7 +152,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate {
       cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
     } else if attributeName == .Length || attributeName == .Height {
-      let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.LengthCell.rawValue, for: indexPath) as! LengthCell
+      let cell = tableView.dequeueReusableCell(withIdentifier: ListControllerCellIdentifier.LengthCell.rawValue, for: indexPath) as! MeasurementCell
       cell.delegate = self
       cell.configure(withAttributeName: attributeName, andValue: attributeValue)
       return cell
@@ -168,6 +177,7 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
   }
   
   func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    // return an extra row when loading, to give visual indicator to user
     return isLoading ? starwarsCollection.count + 1 : starwarsCollection.count
   }
   
@@ -193,9 +203,9 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
 }
 
 // MARK: Cell Delegates -- keep users choices in sync
-extension ListController: CostCellDelegate, LengthCellDelegate {
+extension ListController: CostCellDelegate, MeasurementCellDelegate {
   
-  func measurementSystemDidChange(for cell: LengthCell) {
+  func measurementSystemDidChange(for cell: MeasurementCell) {
     defaults.measurementSystem = cell.currentMeasurementSystem
   }
   func currencyUnitDidChange(for cell: CostCell) {

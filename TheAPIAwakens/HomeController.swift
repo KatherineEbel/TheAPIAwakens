@@ -54,7 +54,13 @@ class HomeController: UIViewController {
     swapiClient.fetchPage(for: endpoint) { result in
       switch result {
         case .success(let collection): self.starwarsCollection = collection
-        case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+        case .failure(let error):
+          self.deactivateProgressSpinner()
+          if error is NetworkingError {
+            self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
+          } else {
+            self.alertForErrorMessage(error.localizedDescription)
+          }
       }
       completion()
       self.removeCancelButton()
