@@ -63,6 +63,7 @@ class HomeController: UIViewController {
       self.removeCancelButton()
     }
   }
+  
   func handle(_ error: Error) {
     deactivateProgressSpinner()
     if let networkingError = error as? NetworkingError {
@@ -83,6 +84,9 @@ class HomeController: UIViewController {
               self.starwarsCollection = self.swapiClient.updatePropertyForCollection(property: property, oldValues: self.starwarsCollection, newValues: updatedEntities)
               if property == properties.last! {
                 self.deactivateProgressSpinner()
+                guard !self.starwarsCollection.isEmpty else {
+                  return
+                }
                 self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: nil)
               }
             case .failure(let error):
@@ -99,6 +103,9 @@ class HomeController: UIViewController {
   @IBAction func fetchVehicles(_ sender: UIButton) {
     fetch(SWAPI.vehicles) {
       self.deactivateProgressSpinner()
+      guard !self.starwarsCollection.isEmpty else {
+        return
+      }
       self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: self)
     }
   }
@@ -106,6 +113,9 @@ class HomeController: UIViewController {
   @IBAction func fetchStarships(_ sender: UIButton) {
     fetch(SWAPI.starships) {
       self.deactivateProgressSpinner()
+      guard !self.starwarsCollection.isEmpty else {
+        return
+      }
       self.performSegue(withIdentifier: SegueIdentifier.viewCollection.rawValue, sender: nil)
     }
   }
@@ -124,7 +134,7 @@ class HomeController: UIViewController {
   
   func alertForErrorMessage(_ message: String) {
     let alertController = UIAlertController(title: "Oops! We had a problem!", message: message, preferredStyle: .alert)
-    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+    let okAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
     alertController.addAction(okAction)
     present(alertController, animated: true, completion: nil)
   }
