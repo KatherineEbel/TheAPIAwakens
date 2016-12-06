@@ -205,7 +205,7 @@ extension ListController: UIPickerViewDataSource, UIPickerViewDelegate {
     } else {
       title = (starwarsCollection[row].entity as! StarWarsType).name
     }
-    return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.white])
+    return NSAttributedString(string: title, attributes: [NSForegroundColorAttributeName: UIColor.yellow])
   }
   
   // update controller's selected entity when user picks
