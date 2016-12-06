@@ -11,6 +11,7 @@ import Foundation
 // this String extension is for convenience of converting API values in to the correct measurements
 
 extension String {
+  // MARK: Centimeters to Feet
   func toFeetFromCentimeters() -> String {
     if let centimeters = Double(self) {
       let feetPerCentimeter = 0.0328084
@@ -21,6 +22,7 @@ extension String {
     }
   }
   
+  // MARK: Feet to Meters
   func fromFeetToMeters() -> String {
     if self.hasSuffix("m") || self == "unknown" {
       return self
@@ -35,6 +37,7 @@ extension String {
     }
   }
   
+  // MARK: Meters to Feet
   func toFeetFromMeters() -> String {
     if self.hasSuffix("ft") || self == "unknown" {
       return self
@@ -49,6 +52,7 @@ extension String {
     }
   }
   
+  // MARK: Round to Decimal Place
   func roundToPlaces(decimalPlaces: Int) -> String {
     if let double = Double(self) {
       let divisor = pow(10.0, Double(decimalPlaces))

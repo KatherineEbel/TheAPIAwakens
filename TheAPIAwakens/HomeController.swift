@@ -33,6 +33,7 @@ class HomeController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
+  // will cancel downloads in progress
   func cancelDownloads() {
     swapiClient.session.getAllTasks { tasks in
       _ = tasks.map { $0.cancel() }
@@ -43,6 +44,7 @@ class HomeController: UIViewController {
     self.navigationItem.rightBarButtonItem = nil
   }
   
+  // Adds a barbutton item for user to cancel a request if it is taking too long
   func addCancelRequestButton() {
     let cancelButton = UIBarButtonItem.init(title: "Cancel", style: .plain, target: self, action: #selector(HomeController.cancelDownloads))
     self.navigationItem.rightBarButtonItem = cancelButton
@@ -54,19 +56,20 @@ class HomeController: UIViewController {
     swapiClient.fetchPage(for: endpoint) { result in
       switch result {
         case .success(let collection): self.starwarsCollection = collection
-        case .failure(let error):
-          self.deactivateProgressSpinner()
-          if error is NetworkingError {
-            self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
-          } else {
-            self.alertForErrorMessage(error.localizedDescription)
-          }
+        case .failure(let error): self.handle(error)
       }
       completion()
       self.removeCancelButton()
     }
   }
-  
+  func handle(_ error: Error) {
+    deactivateProgressSpinner()
+    if error is NetworkingError {
+      self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
+    } else {
+      self.alertForErrorMessage(error.localizedDescription)
+    }
+  }
   
   @IBAction func fetchCharacters(_ sender: UIButton) {
     fetch(SWAPI.characters) {

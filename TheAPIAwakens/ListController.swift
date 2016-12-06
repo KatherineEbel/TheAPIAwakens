@@ -8,12 +8,14 @@
 
 import UIKit
 
+// MARK: Nav title enum
 enum ListControllerNavTitles: String {
   case Characters
   case Vehicles
   case Starships
 }
 
+// MARK: ListController Class def
 class ListController: UIViewController {
   
   @IBOutlet weak var starwarsCollectionPicker: SWCollectionPicker!
@@ -24,6 +26,7 @@ class ListController: UIViewController {
   
   var starwarsCollection: [StarWarsEntity] = []
   var partialCollection = [StarWarsEntity]()
+  var isLoading = true
   var selectedEntity: StarWarsEntity! {
     let entity = starwarsCollection[starwarsCollectionPicker.selectedRow(inComponent: 0)]
     return entity
@@ -33,7 +36,6 @@ class ListController: UIViewController {
       SWAPIClient.sharedClient.defaults = self.defaults
     }
   }
-  var isLoading = true
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -45,6 +47,13 @@ class ListController: UIViewController {
     getNextGroup()
   }
   
+  
+  override func didReceiveMemoryWarning() {
+      super.didReceiveMemoryWarning()
+  }
+  
+  // MARK: Helper Methods
+  // fetches the properties for characters that are originally set as urls
   func fetchCharacterProperties(for characters: [StarWarsEntity.Person]) {
     let client = SWAPIClient.sharedClient
     let properties: [StarWarsEntity.PropertyNames] = [.Home, .Vehicles, .Starships]
@@ -68,19 +77,22 @@ class ListController: UIViewController {
     }
   }
   
+  // gets the next page if swapiClient nextPage is not nil
   func getNextGroup() {
     let client = SWAPIClient.sharedClient
     if let nextPage = client.nextPage {
       client.fetchPage(for: nextPage, completion: { result in
         switch result {
           case .success(let entities):
+            // if the results are people, then fetch all of the extra properties
             if let characters = (entities.map { $0.entity }) as? [StarWarsEntity.Person] {
               self.fetchCharacterProperties(for: characters)
             } else {
+              // if not people collection, then ok to go ahead and add to collection immediately
               self.starwarsCollection.append(contentsOf: entities)
               self.starwarsCollectionPicker.reloadAllComponents()
             }
-          case .failure(let error): self.alertForErrorMessage(error.localizedDescription)
+          case .failure(let error): self.handleError(error)
         }
         if client.nextPage != nil {
           self.getNextGroup()
@@ -92,14 +104,6 @@ class ListController: UIViewController {
     }
   }
   
-  override func viewWillAppear(_ animated: Bool) {
-    self.navigationItem.backBarButtonItem?.title = ""
-  }
-  
-  override func didReceiveMemoryWarning() {
-      super.didReceiveMemoryWarning()
-  }
-
   func setNavTitle() {
     if let _ = selectedEntity.entity as? StarWarsEntity.Person {
       self.navigationItem.title = ListControllerNavTitles.Characters.rawValue
@@ -114,9 +118,21 @@ class ListController: UIViewController {
     if let sizes = SWAPIClient.sharedClient.smallestAndLargest(from: starwarsCollection) {
       smallestNameLabel.text = sizes.smallest
       largestNameLabel.text = sizes.largest
+    } else {
+      smallestNameLabel.text = "Unknown"
+      largestNameLabel.text = "Unkown"
     }
   }
   
+  // MARK: Error handling
+  func handleError(_ error: Error) {
+    if error is NetworkingError {
+      self.alertForErrorMessage((error as! NetworkingError).errorDescription!)
+    } else {
+      self.alertForErrorMessage(error.localizedDescription)
+    }
+  }
+
   func alertForErrorMessage(_ message: String) {
     let alertController = UIAlertController(title: "Oops! We had a problem!", message: message, preferredStyle: .alert)
     let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
@@ -126,6 +142,7 @@ class ListController: UIViewController {
 
 }
 
+// MARK: Cell Identifier enum
 enum ListControllerCellIdentifier: String {
   case DefaultCell
   case LengthCell
@@ -134,15 +151,14 @@ enum ListControllerCellIdentifier: String {
 
 // MARK: Tableview datasource and delegate
 extension ListController: UITableViewDataSource, UITableViewDelegate {
-    // MARK: - Table view data source
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
+  func numberOfSections(in tableView: UITableView) -> Int {
+      return 1
+  }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-      return selectedEntity.propertyNames.count
-    }
-  
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return selectedEntity.propertyNames.count
+  }
+
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let attributeName = selectedEntity.propertyNames[indexPath.row]
     let attributeValue = selectedEntity.propertyValues[indexPath.row]
